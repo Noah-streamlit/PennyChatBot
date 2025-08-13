@@ -1,0 +1,41 @@
+{
+  "gemini_config": {
+    "api_key_placeholder": "GEMINI_API_KEY",
+    "model_name": "gemini-2.0-flash"
+  },
+  "app_config": {
+    "use_ai_advice": true,
+    "personalities": [
+      {
+        "id": "1",
+        "name": "Friendly",
+        "emoji": "😊"
+      },
+      {
+        "id": "2",
+        "name": "Professional",
+        "emoji": "🧑‍💼"
+      }
+    ],
+    "expense_categories": [
+      "Rent",
+      "Food",
+      "Transport",
+      "School supplies",
+      "Entertainment",
+      "Other"
+    ]
+  },
+  "advice_templates": {
+    "friendly_intro": [
+      "Hey there! 😊 Let’s make sure your money is working for you!",
+      "Woohoo! Budget check time! Let’s see how you’re doing. 💸",
+      "Hi friend! Ready to crush that goal together? 🚀"
+    ],
+    "professional_intro": [
+      "Analyzing your financial summary now. Here are my recommendations:",
+      "Reviewing your budget data...",
+      "Based on the provided inputs, here’s the financial assessment:"
+    ]
+  }
+}
