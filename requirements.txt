@@ -1,0 +1,12 @@
+google-generativeai
+dotenv
+load_dotenv
+markdown
+markdown-it-py
+streamlit
+firebase
+firebase_admin
+pandas
+plotly
+plotly.express
+time
