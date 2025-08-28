@@ -1,3 +1,4 @@
+# main.py
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -10,6 +11,7 @@ import os
 import json
 from dotenv import load_dotenv
 from markdown_it import MarkdownIt
+from google.api_core.exceptions import RetryError
 
 # --- Firebase Initialization and Globals ---
 firebase_config = {}
@@ -304,8 +306,16 @@ def show_home_page():
                 persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
             
             user_id = st.session_state.user_id
-            budget_ref = db.collection(f'artifacts/{app_id}/users').document(user_id).collection('budget').document('current')
-            budget_data = budget_ref.get().to_dict()
+            budget_data = None
+            try:
+                budget_ref = db.collection(f'artifacts/{app_id}/users').document(user_id).collection('budget').document('current')
+                budget_data = budget_ref.get().to_dict()
+            except RetryError as e:
+                st.error(f"Could not connect to the database. Please check your connection or credentials. Error: {e}")
+                budget_data = None
+            except Exception as e:
+                st.error(f"An unexpected database error occurred. Error: {e}")
+                budget_data = None
 
             if budget_data:
                 budget_info = f"""
@@ -321,7 +331,7 @@ def show_home_page():
                 """
                 full_prompt = f"{persona_prompt}\n\n{budget_info}\n\nUser: {prompt}"
             else:
-                full_prompt = f"{persona_prompt}\n\nUser: {prompt}"
+                full_prompt = f"{persona_prompt}\n\nUser: {prompt}. I don't have access to your financial data right now, but I can still answer general financial questions."
             
             with st.spinner('Thinking...'):
                 response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
