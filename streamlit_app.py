@@ -345,24 +345,9 @@ def show_home_page():
             st.markdown(message["content"], unsafe_allow_html=True)
             
     # Input area for chat
-    st.markdown("<div style='margin-top: 20px; text-align: center;'>", unsafe_allow_html=True)
-
-    # --- VOICE CHAT IMPLEMENTATION ---
-    # This is the section where you would implement the real voice chat
-    # For now, it's a simulated button.
-    # To enable real voice chat, you would need to:
-    # 1. Install a Streamlit component that can record audio (e.g., `streamlit-mic-recorder`).
-    #    `pip install streamlit-mic-recorder`
-    # 2. Get an API key for a voice-to-text service (e.g., Google Cloud Speech-to-Text, OpenAI Whisper).
-    # 3. Replace the `st.button` below with the recording component and add API logic.
+    prompt = st.chat_input("Ask Penny a question...")
     
-    # For a simulated experience, we use a button.
-    voice_chat_button = st.button("Talk to Penny", key="voice_button")
-    
-    if voice_chat_button:
-        # Simulate voice input
-        st.info("Voice input simulated! (Actual voice-to-text requires an external API)")
-        prompt = "User has provided voice input."
+    if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -396,8 +381,6 @@ def show_home_page():
                 text_to_speech_and_play(assistant_response_raw)
         st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
         st.rerun()
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 def show_budget_page():
     st.title("📝 Budget Details")
