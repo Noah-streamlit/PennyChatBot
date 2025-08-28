@@ -2,10 +2,10 @@ import streamlit as st
 import google.generativeai as genai
 import pandas as pd
 import plotly.express as px
-import time
 import os
 from dotenv import load_dotenv
 from markdown_it import MarkdownIt
+import time
 
 # --- Gemini AI Setup ---
 load_dotenv()
@@ -158,8 +158,8 @@ st.markdown("""
 # --- Initialize Markdown parser
 md = MarkdownIt()
 
-
 # --- Page Functions ---
+
 def show_welcome_page():
     st.title("Penny's Budgeting Assistant")
     st.subheader("Your AI-powered peer for smart financial planning.")
@@ -167,12 +167,15 @@ def show_welcome_page():
     with col1:
         if st.button("Login"):
             st.session_state.page = 'login'
+            st.rerun()
     with col2:
         if st.button("Sign Up"):
             st.session_state.page = 'signup'
+            st.rerun()
 
 def show_login_page():
     st.title("Login to Your Account")
+    st.info("This is a simplified prototype. Just enter an email to 'log in'.")
     with st.form("login_form"):
         email = st.text_input("Email Address")
         password = st.text_input("Password", type="password")
@@ -181,19 +184,19 @@ def show_login_page():
         if submitted:
             if email:
                 st.session_state.logged_in = True
-                st.session_state.user_id = 'prototype_user_id'
-                st.session_state.user_name = 'Prototype User'
+                st.session_state.user_id = email
+                st.session_state.user_name = "User"
                 st.session_state.page = 'home'
                 st.rerun()
             else:
                 st.error("Please enter an email to log in.")
 
-
 def show_signup_page():
     st.title("Create Your Account")
-    st.info("This feature is currently under maintenance. Please use the login page to proceed.")
-    st.session_state.page = 'login'
-    st.rerun()
+    st.info("This feature is currently disabled. Please use the login page to proceed.")
+    if st.button("Go to Login"):
+        st.session_state.page = 'login'
+        st.rerun()
 
 def show_home_page():
     st.title("💬 Chat with Penny")
@@ -227,16 +230,8 @@ def show_home_page():
             elif st.session_state.persona == "Professional":
                 persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
             
-            # Use hardcoded data since Firebase is removed
-            budget_data = {
-                'income': 1500,
-                'monthly_budget': 1000,
-                'rent': 500,
-                'food': 300,
-                'transport': 100,
-                'liabilities': 50,
-                'extra_info': 'Wants to save for a new laptop.'
-            }
+            # Retrieve budget data from session state
+            budget_data = st.session_state.get('budget', {})
             
             budget_info = f"""
             Here is the user's current budget information:
@@ -263,60 +258,134 @@ def show_home_page():
 
 def show_budget_page():
     st.title("📝 Budget Details")
-    st.info("Budget functionality is currently disabled as the Firebase database has been removed.")
+    st.markdown("Please provide your financial information below.")
     st.markdown("---")
-    budget_data = {
-        'income': 1500,
-        'monthly_budget': 1000,
-        'rent': 500,
-        'food': 300,
-        'transport': 100,
-        'liabilities': 50,
-        'extra_info': 'Wants to save for a new laptop.'
-    }
     
-    st.markdown("This is the **static budget data** currently being used by the bot:")
-    st.table(pd.DataFrame(budget_data.items(), columns=['Category', 'Amount']))
+    # Initialize budget data if it doesn't exist
+    if 'budget' not in st.session_state:
+        st.session_state.budget = {}
+
+    with st.form("budget_form"):
+        st.subheader("Income & Budget")
+        income = st.text_input("Monthly Income:", value=st.session_state.budget.get('income', ''), placeholder="e.g., 1500 XCD")
+        monthly_budget = st.text_input("Overall Monthly Budget:", value=st.session_state.budget.get('monthly_budget', ''), placeholder="e.g., 1000 XCD")
+
+        st.subheader("Expenses & Liabilities")
+        rent = st.text_input("Rent:", value=st.session_state.budget.get('rent', ''), placeholder="e.g., 500 XCD")
+        food = st.text_input("Food:", value=st.session_state.budget.get('food', ''), placeholder="e.g., 300 XCD")
+        transport = st.text_input("Transport:", value=st.session_state.budget.get('transport', ''), placeholder="e.g., 100 XCD")
+        liabilities = st.text_input("Other Liabilities:", value=st.session_state.budget.get('liabilities', ''), placeholder="e.g., 50 XCD")
+        
+        st.subheader("Extra Information")
+        extra_info = st.text_area("Tell us more about your situation:", value=st.session_state.budget.get('extra_info', ''))
+
+        submitted = st.form_submit_button("Save Budget Details")
+
+        if submitted:
+            try:
+                st.session_state.budget = {
+                    'income': float(income or 0),
+                    'monthly_budget': float(monthly_budget or 0),
+                    'rent': float(rent or 0),
+                    'food': float(food or 0),
+                    'transport': float(transport or 0),
+                    'liabilities': float(liabilities or 0),
+                    'extra_info': extra_info,
+                }
+                st.success("Budget details saved successfully!")
+                time.sleep(1)
+                st.rerun()
+            except ValueError:
+                st.error("Please ensure all financial inputs are valid numbers.")
 
 def show_financial_goals_page():
     st.title("🎯 Financial Goals")
-    st.info("Financial goals functionality is currently disabled as the Firebase database has been removed.")
+    st.markdown("Set your goals and see if they are achievable.")
     st.markdown("---")
-    st.markdown("For testing purposes, a goal of saving **$1200 over 6 months** is assumed.")
+    
+    # Initialize goals data
+    if 'goals' not in st.session_state:
+        st.session_state.goals = []
+
+    st.subheader("Add a New Goal")
+    with st.form("goal_form"):
+        goal_name = st.text_input("What is your goal?", placeholder="e.g., New Laptop")
+        goal_amount = st.text_input("What is the cost?", placeholder="e.g., 1200 XCD")
+        time_span = st.text_input("How many months do you want to save for?", placeholder="e.g., 6")
+        submitted = st.form_submit_button("Check Achievability & Save")
+
+        if submitted:
+            try:
+                goal_amount_val = float(goal_amount or 0)
+                time_span_val = int(time_span or 1)
+                
+                budget_data = st.session_state.get('budget', {})
+                monthly_saving_capacity = (budget_data.get('income', 0) or 0) - (budget_data.get('monthly_budget', 0) or 0)
+                
+                monthly_saving_needed = goal_amount_val / time_span_val
+                
+                prompt = f"Goal: {goal_name} for {goal_amount_val} over {time_span_val} months. Monthly saving needed: {monthly_saving_needed:.2f}. User's estimated monthly saving capacity: {monthly_saving_capacity:.2f}. Is this goal achievable? Provide a friendly, detailed explanation."
+                
+                with st.spinner('Checking your goal...'):
+                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(prompt)
+                    st.subheader("Penny's Achievability Analysis")
+                    
+                    rendered_text = md.render(response.text)
+                    st.markdown(rendered_text, unsafe_allow_html=True)
+                
+                # Save goal to session state
+                st.session_state.goals.append({
+                    'goal_name': goal_name,
+                    'goal_amount': goal_amount_val,
+                    'time_span': time_span_val,
+                })
+                st.success("Goal saved!")
+                st.rerun()
+            except ValueError:
+                st.error("Please enter valid numbers for amount and time span.")
+
+    st.markdown("---")
+    st.subheader("Your Saved Goals")
+    if st.session_state.goals:
+        for i, goal in enumerate(st.session_state.goals):
+            st.write(f"**Goal {i+1}:** {goal['goal_name']}")
+            st.write(f"**Cost:** {goal['goal_amount']:.2f}")
+            st.write(f"**Months:** {goal['time_span']}")
+            st.markdown("---")
+    else:
+        st.info("You haven't set any goals yet.")
 
 def show_graphs_page():
     st.title("📈 Financial Graphs")
-    st.info("Graph functionality is currently disabled as the Firebase database has been removed.")
+    st.markdown("Visualize your budget and financial progress.")
     st.markdown("---")
     
-    budget_data = {
-        'income': 1500,
-        'monthly_budget': 1000,
-        'rent': 500,
-        'food': 300,
-        'transport': 100,
-        'liabilities': 50,
-        'extra_info': 'Wants to save for a new laptop.'
-    }
+    # Retrieve budget data from session state
+    budget_data = st.session_state.get('budget', None)
 
-    st.subheader("Monthly Budget Breakdown")
-    expenses = {
-        'Rent': budget_data.get('rent', 0),
-        'Food': budget_data.get('food', 0),
-        'Transport': budget_data.get('transport', 0),
-        'Liabilities': budget_data.get('liabilities', 0)
-    }
-    
-    total_expenses = sum(expenses.values())
-    income = budget_data.get('income', 0)
-    
-    if income > total_expenses:
-        expenses['Remaining Balance'] = income - total_expenses
+    if budget_data:
+        st.subheader("Monthly Budget Breakdown")
+        
+        expenses = {
+            'Rent': budget_data.get('rent', 0),
+            'Food': budget_data.get('food', 0),
+            'Transport': budget_data.get('transport', 0),
+            'Liabilities': budget_data.get('liabilities', 0)
+        }
+        
+        total_expenses = sum(expenses.values())
+        income = budget_data.get('income', 0)
+        
+        if income > total_expenses:
+            expenses['Remaining Balance'] = income - total_expenses
 
-    df = pd.DataFrame(list(expenses.items()), columns=['Category', 'Amount'])
-    
-    fig = px.pie(df, values='Amount', names='Category', title='Distribution of Monthly Finances')
-    st.plotly_chart(fig)
+        df = pd.DataFrame(list(expenses.items()), columns=['Category', 'Amount'])
+        
+        fig = px.pie(df, values='Amount', names='Category', title='Distribution of Monthly Finances')
+        st.plotly_chart(fig)
+        
+    else:
+        st.info("Please fill out the Budget page to see your graphs.")
 
 
 def show_log_out_page():
