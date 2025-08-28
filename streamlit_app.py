@@ -25,21 +25,22 @@ try:
 except Exception as e:
     st.error(f"Error creating Gemini model: {e}")
 
-# --- Custom CSS for a Dark Mode theme ---
+# --- Custom CSS for a Dark Mode theme (App-Store Level) ---
 st.markdown("""
 <style>
     /* General styling for the main app container and body */
     .stApp {
-        background-color: #1E1E2F; /* Deep, rich dark blue-purple */
+        background-color: #0A192F; /* Deep navy background, modern and sleek */
         color: #F0F0F0; /* Off-white for general text */
         font-family: 'Segoe UI', Arial, sans-serif;
     }
 
     /* Styling for headers */
     h1, h2, h3, h4, h5, h6 {
-        color: #FF7F7F; /* Soft coral-pink for headers */
+        color: #64FFDA; /* Mint green for headers, a modern accent */
         font-family: 'Segoe UI', Arial, sans-serif;
         font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     }
 
     /* Styling for various input labels */
@@ -54,84 +55,97 @@ st.markdown("""
     
     /* Styling for buttons */
     .stButton > button {
-        background-color: #555273; /* A soft, dark purple for buttons */
-        color: white !important;
-        border: 2px solid #555273;
+        background-color: #263353; /* A soft, dark purple for buttons */
+        color: #F0F0F0 !important;
+        border: 2px solid #304169;
         border-radius: 12px;
         padding: 10px 25px;
         font-weight: 600;
         transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
     }
     .stButton > button:hover {
-        background-color: #6E6B8D; /* Lighter shade on hover */
-        border-color: #6E6B8D;
+        background-color: #304169; /* Lighter shade on hover */
+        border-color: #64FFDA; /* Mint green border on hover */
         color: white !important;
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(100, 255, 218, 0.15); /* Subtle glow */
     }
 
     /* Styling for the sidebar */
     .css-1d391kg {
-        background-color: #1a1a2e; /* Slightly darker shade for sidebar */
-        border-right: 1px solid #2e2e4e;
+        background-color: #0B213A; /* Slightly darker shade for sidebar */
+        border-right: 1px solid #1A314A;
         padding-top: 2rem;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
     }
     .css-1d391kg .stButton > button {
-        background-color: #FF7F7F; /* Accent color for sidebar buttons */
-        border-color: #FF7F7F;
+        background-color: #64FFDA; /* Accent color for sidebar buttons */
+        color: #0A192F !important;
+        border-color: #64FFDA;
         width: 100%;
         margin-bottom: 10px;
     }
     .css-1d391kg .stButton > button:hover {
-        background-color: #FF9B9B;
-        border-color: #FF9B9B;
+        background-color: #79FDD4;
+        border-color: #79FDD4;
     }
 
     /* Styling for chat messages */
     .stChatMessage {
-        background: linear-gradient(145deg, #28283F, #1E1E2F); /* Subtle gradient for depth */
+        background: #12243D; /* Subtle background for depth */
         border-radius: 12px;
         padding: 15px;
         margin-bottom: 12px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        border-left: 3px solid #FF7F7F; /* Accent border */
+        border-left: 3px solid #64FFDA; /* Accent border */
     }
     .stChatMessage.st-chat-message-user {
-        background: linear-gradient(145deg, #38384F, #28283F); /* Slightly different gradient for user messages */
-        border-left: 3px solid #6E6B8D; /* Different accent for user */
+        background: #1A314A; /* Slightly different background for user messages */
+        border-left: 3px solid #FF7F9F; /* Different accent for user */
     }
 
     /* Styling for the main content block, including chat input and forms */
     .st-emotion-cache-1c7v05w, .stForm {
-        background-color: #1E1E2F;
+        background-color: #12243D;
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        border: 1px solid #28283F;
+        border: 1px solid #1A314A;
     }
     
     /* Text input fields */
     .stTextInput > div > div > input, .stTextArea > div > div > textarea, .st-emotion-cache-1g85z9l {
-        background-color: #28283F; /* Darker input fields */
+        background-color: #0B213A; /* Darker input fields */
         color: #F0F0F0;
-        border: 1px solid #38384F;
+        border: 1px solid #1A314A;
         border-radius: 8px;
         padding: 10px;
+        transition: border-color 0.3s ease;
     }
     .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-        border-color: #FF7F7F;
-        box-shadow: 0 0 0 0.1rem rgba(255, 127, 127, 0.5);
+        border-color: #64FFDA;
+        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
     }
     .st-emotion-cache-1g85z9l > div > div > input {
-        background-color: #28283F; /* Chat input specific styling */
+        background-color: #0B213A; /* Chat input specific styling */
         color: #F0F0F0;
-        border: 1px solid #38384F;
+        border: 1px solid #1A314A;
         border-radius: 8px;
         padding: 10px;
+        transition: border-color 0.3s ease;
     }
     .st-emotion-cache-1g85z9l > div > div > input:focus {
-        border-color: #FF7F7F;
-        box-shadow: 0 0 0 0.1rem rgba(255, 127, 127, 0.5);
+        border-color: #64FFDA;
+        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
+    }
+    
+    /* Chat input container styling */
+    .st-emotion-cache-1g85z9l {
+        border-radius: 12px;
+        padding: 8px;
+        background: #12243D;
+        border: 1px solid #1A314A;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     /* Info and Error messages */
@@ -152,6 +166,15 @@ st.markdown("""
         background-color: #2196F3;
         color: white;
     }
+
+    /* Icon adjustments for better visibility */
+    .stChatMessage .st-emotion-cache-1wmy06w img {
+        border: 2px solid #64FFDA;
+    }
+    .stChatMessage.st-chat-message-user .st-emotion-cache-1wmy06w img {
+        border: 2px solid #FF7F9F;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
