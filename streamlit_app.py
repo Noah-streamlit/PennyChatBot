@@ -243,21 +243,21 @@ st.markdown("""
         margin-bottom: 20px;
         padding-top: 10px;
     }
-    
-    /* Styling for the mic button */
-    .st-mic-button > button {
-        background-color: #FF7F9F;
+
+    /* Style for the custom microphone button */
+    .mic-button {
+        background: transparent;
         border: none;
-        border-radius: 8px;
-        color: #F0F0F0 !important;
-        padding: 10px 15px;
-        font-weight: 600;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
     }
-    .st-mic-button > button:hover {
-        background-color: #FF9B9B;
-        transform: translateY(-2px);
+    .mic-button:hover {
+        transform: scale(1.1);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -345,20 +345,20 @@ def show_home_page():
             st.markdown(message["content"], unsafe_allow_html=True)
             
     # Input area for chat
-    col_chat_input, col_mic = st.columns([1, 0.15])
+    col_chat_input, col_mic = st.columns([1, 0.1])
     
     with col_chat_input:
         user_input = st.chat_input("Ask Penny a question...", key="chat_input")
     
     with col_mic:
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-        voice_button = st.button("🎙️", key="voice_button")
+        voice_button = st.button("Voice Chat", key="voice_button")
+        st.markdown("<div style='margin-top: 20px; text-align: center;'><button class='mic-button' type='button' onclick='document.querySelector(\"#voice_button\").click()'><img src='https://i.ibb.co/L89kYVn/mic-icon.png' alt='Voice Chat' style='width: 48px; height: 48px;'></button></div>", unsafe_allow_html=True)
         
     prompt = None
     if user_input:
         prompt = user_input
     elif voice_button:
-        # Simulate voice input and get a response
         st.info("Voice input simulated! (Actual voice-to-text requires an external API)")
         prompt = "User has provided voice input."
     
@@ -469,7 +469,7 @@ def show_financial_goals_page():
                 prompt = f"Goal: {goal_name} for {goal_amount_val} over {time_span_val} months. Monthly saving needed: {monthly_saving_needed:.2f}. User's estimated monthly saving capacity: {monthly_saving_capacity:.2f}. Is this goal achievable? Provide a friendly, detailed explanation."
                 
                 with st.spinner('Checking your goal...'):
-                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
+                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(prompt)
                     st.subheader("Penny's Achievability Analysis")
                     
                     rendered_text = md.render(response.text)
