@@ -19,7 +19,6 @@ try:
 except NameError:
     # If not running in Canvas, check for a local file.
     if os.path.exists('firebase_creds.json'):
-        # FIXED: Corrected the typo from 'creeds' to 'creds'
         with open('firebase_creds.json', 'r') as f:
             firebase_config = json.load(f)
     else:
@@ -58,8 +57,8 @@ load_dotenv()
 try:
     GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
     if not GOOGLE_API_KEY:
-        st.error("Missing GEMINI_API_KEY. Please set it in your .env file.")
-        raise ValueError("GEMINI_API_KEY is not set.")
+        st.error("Authentication Error: Missing GEMINI_API_KEY. Please make sure you have a .env file with your API key.")
+        st.stop()
     else:
         genai.configure(api_key=GOOGLE_API_KEY)
 except Exception as e:
@@ -76,16 +75,16 @@ st.markdown("""
 <style>
     /* General styling for the main app container and body */
     .stApp {
-        background-color: #1a1a2e; /* Dark blue-purple background */
-        color: #e0e0e0; /* Light gray for general text */
+        background-color: #1E1E2F; /* Deep, rich dark blue-purple */
+        color: #F0F0F0; /* Off-white for general text */
         font-family: 'Segoe UI', Arial, sans-serif;
     }
 
     /* Styling for headers */
     h1, h2, h3, h4, h5, h6 {
-        color: #e94560; /* A vibrant red-pink for headers */
+        color: #FF7F7F; /* Soft coral-pink for headers */
         font-family: 'Segoe UI', Arial, sans-serif;
-        font-weight: 700; /* Bolder headers */
+        font-weight: 700;
     }
 
     /* Styling for various input labels */
@@ -94,86 +93,92 @@ st.markdown("""
     .stNumberInput > label,
     .stDateInput > label,
     .stForm > label {
-        color: #e0e0e0;
+        color: #F0F0F0;
         font-weight: bold;
-        font-family: 'Segoe UI', Arial, sans-serif;
     }
     
     /* Styling for buttons */
     .stButton > button {
-        background-color: #537d88; /* A muted teal-blue */
+        background-color: #555273; /* A soft, dark purple for buttons */
         color: white !important;
-        border: 2px solid #537d88;
-        border-radius: 8px; /* Slightly less rounded for professional look */
+        border: 2px solid #555273;
+        border-radius: 12px;
         padding: 10px 25px;
-        font-family: 'Segoe UI', Arial, sans-serif;
         font-weight: 600;
         transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
     }
     .stButton > button:hover {
-        background-color: #72a0a8; /* Lighter teal-blue on hover */
-        border-color: #72a0a8;
+        background-color: #6E6B8D; /* Lighter shade on hover */
+        border-color: #6E6B8D;
         color: white !important;
-        transform: translateY(-2px); /* Slight lift effect */
+        transform: translateY(-2px);
     }
 
     /* Styling for the sidebar */
-    .css-1d391kg { /* This is the class for the sidebar container */
-        background-color: #0f3460; /* Darker blue for sidebar */
-        border-right: 1px solid #16213e;
-        font-family: 'Segoe UI', Arial, sans-serif;
+    .css-1d391kg {
+        background-color: #1a1a2e; /* Slightly darker shade for sidebar */
+        border-right: 1px solid #2e2e4e;
         padding-top: 2rem;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for definition */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
     }
-    .css-1d391kg .stButton > button { /* Sidebar button specific styling */
-        background-color: #e94560; /* Use accent color for sidebar buttons */
-        border-color: #e94560;
-        width: 100%; /* Make sidebar buttons full width */
+    .css-1d391kg .stButton > button {
+        background-color: #FF7F7F; /* Accent color for sidebar buttons */
+        border-color: #FF7F7F;
+        width: 100%;
         margin-bottom: 10px;
     }
     .css-1d391kg .stButton > button:hover {
-        background-color: #ff6a80; /* Lighter accent on hover */
-        border-color: #ff6a80;
+        background-color: #FF9B9B;
+        border-color: #FF9B9B;
     }
 
     /* Styling for chat messages */
     .stChatMessage {
-        background-color: #2e2e4e; /* Darker chat bubble */
-        border-radius: 12px; /* Smooth rounded corners */
+        background: linear-gradient(145deg, #28283F, #1E1E2F); /* Subtle gradient for depth */
+        border-radius: 12px;
         padding: 15px;
         margin-bottom: 12px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
-        font-family: 'Segoe UI', Arial, sans-serif;
-        border-left: 3px solid #e94560; /* Accent border */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-left: 3px solid #FF7F7F; /* Accent border */
     }
     .stChatMessage.st-chat-message-user {
-        background-color: #3f3f6e; /* Slightly different shade for user messages */
-        border-left: 3px solid #537d88; /* Different accent for user */
+        background: linear-gradient(145deg, #38384F, #28283F); /* Slightly different gradient for user messages */
+        border-left: 3px solid #6E6B8D; /* Different accent for user */
     }
 
     /* Styling for the main content block, including chat input and forms */
     .st-emotion-cache-1c7v05w, .stForm {
-        background-color: #1a1a2e; /* Match main background or a slightly lighter shade */
+        background-color: #1E1E2F;
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        font-family: 'Segoe UI', Arial, sans-serif;
-        border: 1px solid #16213e; /* Subtle border */
+        border: 1px solid #28283F;
     }
     
     /* Text input fields */
-    .stTextInput > div > div > input, .stTextArea > div > div > textarea {
-        background-color: #2d2d4a; /* Darker input fields */
-        color: #e0e0e0;
-        border: 1px solid #537d88;
-        border-radius: 5px;
+    .stTextInput > div > div > input, .stTextArea > div > div > textarea, .st-emotion-cache-1g85z9l {
+        background-color: #28283F; /* Darker input fields */
+        color: #F0F0F0;
+        border: 1px solid #38384F;
+        border-radius: 8px;
         padding: 10px;
     }
     .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-        border-color: #e94560; /* Highlight focus with accent color */
-        box-shadow: 0 0 0 0.1rem rgba(233, 69, 96, 0.5);
+        border-color: #FF7F7F;
+        box-shadow: 0 0 0 0.1rem rgba(255, 127, 127, 0.5);
     }
-    
+    .st-emotion-cache-1g85z9l > div > div > input {
+        background-color: #28283F; /* Chat input specific styling */
+        color: #F0F0F0;
+        border: 1px solid #38384F;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .st-emotion-cache-1g85z9l > div > div > input:focus {
+        border-color: #FF7F7F;
+        box-shadow: 0 0 0 0.1rem rgba(255, 127, 127, 0.5);
+    }
+
     /* Info and Error messages */
     .stAlert {
         border-radius: 8px;
@@ -181,15 +186,15 @@ st.markdown("""
         margin-bottom: 15px;
     }
     .stAlert.st-success {
-        background-color: #28a745;
+        background-color: #4CAF50;
         color: white;
     }
     .stAlert.st-error {
-        background-color: #dc3545;
+        background-color: #F44336;
         color: white;
     }
     .stAlert.st-info {
-        background-color: #17a2b8;
+        background-color: #2196F3;
         color: white;
     }
 </style>
