@@ -29,22 +29,23 @@ try:
 except Exception as e:
     st.error(f"Error creating Gemini model: {e}")
 
-# --- Custom CSS for a Professional and Clean Theme ---
+# --- Custom CSS for a Dark Mode theme (App-Store Level) ---
 st.markdown("""
 <style>
     /* General styling for the main app container and body */
     .stApp {
-        background-color: #F8F9FA; /* Light gray background for a clean feel */
-        color: #343A40; /* Dark gray for general text */
+        background-color: #0A192F; /* Deep navy background, modern and sleek */
+        color: #F0F0F0; /* Off-white for general text */
         font-family: 'Segoe UI', Arial, sans-serif;
     }
 
     /* Styling for headers */
     h1, h2, h3, h4, h5, h6 {
-        color: #007BFF; /* A clean blue for headers */
+        color: #64FFDA; /* Mint green for headers, a modern accent */
         font-family: 'Segoe UI', Arial, sans-serif;
-        font-weight: 600;
-        border-bottom: 2px solid #E9ECEF;
+        font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        border-bottom: 2px solid #1A314A; /* Subtle separator */
         padding-bottom: 10px;
         margin-bottom: 20px;
     }
@@ -55,94 +56,123 @@ st.markdown("""
     .stNumberInput > label,
     .stDateInput > label,
     .stForm > label {
-        color: #495057;
-        font-weight: 500;
+        color: #F0F0F0;
+        font-weight: bold;
     }
     
     /* Styling for buttons */
     .stButton > button {
-        background-color: #007BFF; /* Blue for primary action buttons */
-        color: white !important;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
+        background-color: #263353; /* A soft, dark purple for buttons */
+        color: #F0F0F0 !important;
+        border: 2px solid #304169;
+        border-radius: 12px;
+        padding: 10px 25px;
         font-weight: 600;
-        transition: background-color 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
     .stButton > button:hover {
-        background-color: #0056B3; /* Darker blue on hover */
+        background-color: #304169; /* Lighter shade on hover */
+        border-color: #64FFDA; /* Mint green border on hover */
+        color: white !important;
         transform: translateY(-2px);
-        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 6px 15px rgba(100, 255, 218, 0.15); /* Subtle glow */
     }
-    
+
     /* Styling for the sidebar */
     .css-1d391kg {
-        background-color: #FFFFFF; /* White background for the sidebar */
-        border-right: 1px solid #DEE2E6;
+        background-color: #0B213A; /* Slightly darker shade for sidebar */
+        border-right: 1px solid #1A314A;
         padding-top: 2rem;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
     }
     .css-1d391kg .stButton > button {
-        background-color: #6C757D; /* Gray for sidebar buttons */
-        color: white !important;
-        border: none;
+        background-color: #64FFDA; /* Accent color for sidebar buttons */
+        color: #0A192F !important;
+        border-color: #64FFDA;
         width: 100%;
         margin-bottom: 10px;
-        transition: background-color 0.3s ease, transform 0.2s ease;
     }
     .css-1d391kg .stButton > button:hover {
-        background-color: #5A6268;
-        transform: translateY(0);
-        box-shadow: none;
+        background-color: #79FDD4;
+        border-color: #79FDD4;
     }
 
     /* Styling for chat messages */
     .stChatMessage {
-        background: #F0F2F5; /* Light gray for chat messages */
+        background: #12243D; /* Subtle background for depth */
         border-radius: 12px;
         padding: 15px;
         margin-bottom: 12px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border-left: 4px solid #007BFF; /* Blue accent border */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-left: 3px solid #64FFDA; /* Accent border */
     }
     .stChatMessage.st-chat-message-user {
-        background: #E9ECEF; /* Slightly different gray for user messages */
-        border-left: 4px solid #6C757D; /* Gray accent for user */
+        background: #1A314A; /* Slightly different background for user messages */
+        border-left: 3px solid #FF7F9F; /* Different accent for user */
     }
 
     /* Styling for the main content block, including chat input and forms */
     .st-emotion-cache-1c7v05w, .stForm {
-        background-color: #FFFFFF;
+        background-color: #12243D;
         border-radius: 10px;
         padding: 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        border: 1px solid #DEE2E6;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        border: 1px solid #1A314A;
     }
     
     /* Text input fields */
-    .stTextInput > div > div > input, .stTextArea > div > div > textarea, .st-emotion-cache-1g85z9l {
-        background-color: #FFFFFF;
-        color: #343A40;
-        border: 1px solid #CED4DA;
+    .stTextInput > div > div > input, .stTextArea > div > div > textarea {
+        background-color: #0B213A; /* Darker input fields */
+        color: #F0F0F0;
+        border: 1px solid #1A314A;
         border-radius: 8px;
         padding: 10px;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        transition: border-color 0.3s ease;
     }
-    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus, .st-emotion-cache-1g85z9l > div > div > input:focus {
-        border-color: #007BFF;
-        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
+        border-color: #64FFDA;
+        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
     }
     
-    /* Chat input container styling */
-    .st-emotion-cache-1g85z9l {
+    /* Chat input container styling - for the main chat input at the bottom */
+    .st-emotion-cache-1g85z9l { /* This targets the overall chat input container */
+        background-color: #12243D; /* Match main content block */
         border-radius: 12px;
         padding: 8px;
-        background: #FFFFFF;
-        border: 1px solid #DEE2E6;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #1A314A;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        display: flex; /* Enable flexbox for alignment of input and button */
+        align-items: center;
+        gap: 10px; /* Space between input and button */
+    }
+    .st-emotion-cache-1g85z9l input { /* This targets the actual text input within the chat input container */
+        background-color: #0B213A; /* Darker input field */
+        color: #F0F0F0;
+        border: 1px solid #1A314A;
+        border-radius: 8px;
+        padding: 10px;
+        flex-grow: 1; /* Allow input to take available space */
+    }
+    .st-emotion-cache-1g85z9l input:focus {
+        border-color: #64FFDA;
+        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
     }
 
+    /* Style for the send button within the chat input */
+    .st-emotion-cache-1g85z9l button {
+        background-color: #64FFDA; /* Mint green send button */
+        color: #0A192F !important;
+        border-radius: 8px;
+        padding: 8px 15px;
+        font-weight: 600;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .st-emotion-cache-1g85z9l button:hover {
+        background-color: #79FDD4;
+        transform: translateY(-1px);
+    }
+    
     /* Info and Error messages */
     .stAlert {
         border-radius: 8px;
@@ -165,20 +195,46 @@ st.markdown("""
         color: #0C5460;
         border-color: #BEE5EB;
     }
-    
-    /* Style for the segmented persona control */
+
+    /* Icon adjustments for better visibility */
+    .stChatMessage .st-emotion-cache-1wmy06w img {
+        border: 2px solid #64FFDA;
+    }
+    .stChatMessage.st-chat-message-user .st-emotion-cache-1wmy06w img {
+        border: 2px solid #FF7F9F;
+    }
+
+    /* Persona selection as segmented control */
+    .stRadio > div[role="radiogroup"] {
+        display: flex;
+        justify-content: flex-start; /* Align to start */
+        margin-bottom: 20px;
+    }
+    .stRadio [data-baseweb="radio"] {
+        margin-right: 10px; /* Space between buttons */
+    }
     .stRadio [data-baseweb="radio"] label {
-        background-color: #E9ECEF;
+        background-color: #1A314A; /* Darker background for segments */
+        border: 1px solid #304169;
         border-radius: 8px;
         padding: 8px 15px;
-        margin: 5px;
-        color: #495057;
+        color: #F0F0F0;
         font-weight: 500;
-        transition: background-color 0.3s ease;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        cursor: pointer;
     }
     .stRadio [data-baseweb="radio"][aria-checked="true"] label {
-        background-color: #007BFF;
-        color: white;
+        background-color: #64FFDA; /* Accent color when selected */
+        border-color: #64FFDA;
+        color: #0A192F; /* Dark text on accent */
+    }
+    
+    /* Hide the default radio button dot for a cleaner segmented look */
+    .stRadio [data-baseweb="radio"] input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
     }
 
     /* Style for the main page header with Penny's logo */
@@ -187,10 +243,43 @@ st.markdown("""
         align-items: center;
         gap: 15px;
         margin-bottom: 20px;
+        padding-top: 10px;
     }
     .main-header img {
         height: 60px; /* Adjust size as needed */
+        border-radius: 10px; /* Slightly rounded corners for the logo */
     }
+
+    /* Positioning for the voice button next to chat input */
+    .chat-input-container {
+        display: flex;
+        align-items: flex-end; /* Align items at the bottom */
+        gap: 10px;
+        width: 100%;
+        margin-top: 20px; /* Space above chat input */
+    }
+    .chat-input-container > div:first-child { /* Targets the st.chat_input */
+        flex-grow: 1;
+    }
+    .st-mic-recorder-button { /* Custom styling for mic recorder button */
+        background-color: #FF7F9F; /* Pink accent for mic */
+        color: white !important;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-weight: 600;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        height: 48px; /* Match height of chat input for better alignment */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .st-mic-recorder-button:hover {
+        background-color: #FF9B9B;
+        transform: translateY(-2px);
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -249,29 +338,26 @@ def text_to_speech_and_play(text):
         os.remove("response.mp3")
     
 def show_home_page():
-    # Use HTML/CSS for a custom header with logo
+    # Custom header with logo
     st.markdown("""
         <div class="main-header">
             <img src="https://i.ibb.co/YyY1q6F/Penny-Bot-Logo.png" alt="Penny Bot Logo">
             <h1>Chat with Penny</h1>
         </div>
-        <p style="color: #6C757D;">Hello there! I'm Penny, your budgeting assistant. How can I help you today?</p>
-        <hr style="border-top: 2px solid #E9ECEF; margin-top: 20px; margin-bottom: 20px;">
+        <p style="color: #A0AABA; margin-bottom: 30px;">Hello there! I'm Penny, your budgeting assistant. How can I help you today?</p>
     """, unsafe_allow_html=True)
     
-    # Use buttons for a better persona selector
-    col1, col2 = st.columns([1, 10])
-    with col1:
-        st.write("Persona:")
-    with col2:
-        persona = st.radio(
-            "Choose Penny's persona:",
-            ("Friendly", "Professional"),
-            index=("Friendly", "Professional").index(st.session_state.get('persona', 'Friendly')),
-            horizontal=True,
-            label_visibility="collapsed"
-        )
-        st.session_state.persona = persona
+    # Persona selection as a segmented control (custom CSS handles appearance)
+    st.markdown("<p style='color: #F0F0F0; font-weight: bold;'>Choose Penny's persona:</p>", unsafe_allow_html=True)
+    persona = st.radio(
+        "Choose Penny's persona:",
+        ("Friendly", "Professional"),
+        index=("Friendly", "Professional").index(st.session_state.get('persona', 'Friendly')),
+        horizontal=True,
+        label_visibility="collapsed",
+        key='persona_selector'
+    )
+    st.session_state.persona = persona
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -280,26 +366,32 @@ def show_home_page():
         with st.chat_message(message["role"]):
             st.markdown(message["content"], unsafe_allow_html=True)
             
-    # Add a button to switch to voice chat mode
-    if 'voice_mode' not in st.session_state:
-        st.session_state.voice_mode = False
-    
-    if st.button("🎙️ Talk to Penny"):
-        st.session_state.voice_mode = not st.session_state.voice_mode
-        st.rerun()
+    # Input area with integrated voice button
+    with st.container():
+        col_chat_input, col_mic = st.columns([1, 0.15]) # Adjust column ratio for input and mic
+        
+        with col_chat_input:
+            user_input = st.chat_input("Ask Penny a question...", key="chat_input")
+        
+        with col_mic:
+            st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True) # Adjust vertical alignment
+            recorded_audio = mic_recorder(
+                start_prompt="🎙️", # Only icon
+                stop_prompt="⏹️", # Only icon
+                just_once=True,
+                use_container_width=False, # Let custom CSS handle width
+                key='mic_recorder_chat',
+                # Add a custom class for styling
+                css_class="st-mic-recorder-button" 
+            )
 
-    if st.session_state.voice_mode:
-        st.info("Voice chat is active. Click the microphone to start talking.")
-        # Mic recorder component
-        st.session_state.audio_text = mic_recorder(
-            start_prompt="Start Recording",
-            stop_prompt="Stop Recording",
-            just_once=True,
-            use_container_width=True,
-            key='mic_recorder'
-        )
-        if st.session_state.audio_text:
-            prompt = st.session_state.audio_text
+        prompt = None
+        if user_input:
+            prompt = user_input
+        elif recorded_audio:
+            prompt = recorded_audio
+
+        if prompt:
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
@@ -331,42 +423,7 @@ def show_home_page():
                     st.markdown(assistant_response_plain, unsafe_allow_html=True)
                     text_to_speech_and_play(assistant_response_raw)
             st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
-            st.session_state.audio_text = "" # Reset the audio text to avoid re-running
-            st.rerun()
-
-    # Regular text input if voice mode is off
-    if not st.session_state.voice_mode:
-        if prompt := st.chat_input("Ask Penny a question..."):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.markdown(prompt)
-            with st.chat_message("assistant"):
-                persona_prompt = ""
-                if st.session_state.persona == "Friendly":
-                    persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging."
-                elif st.session_state.persona == "Professional":
-                    persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
-                
-                budget_data = st.session_state.get('budget', {})
-                budget_info = f"""
-                Here is the user's current budget information:
-                - Monthly Income: {budget_data.get('income', 'N/A')}
-                - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
-                - Rent: {budget_data.get('rent', 'N/A')}
-                - Food: {budget_data.get('food', 'N/A')}
-                - Transport: {budget_data.get('transport', 'N/A')}
-                - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
-                - Extra Info: {budget_data.get('extra_info', 'None provided')}
-                Use this information to answer the user's questions.
-                """
-                full_prompt = f"{persona_prompt}\n\n{budget_info}\n\nUser: {prompt}"
-                
-                with st.spinner('Thinking...'):
-                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
-                    assistant_response_raw = response.text
-                    assistant_response_plain = md.render(assistant_response_raw)
-                    st.markdown(assistant_response_plain, unsafe_allow_html=True)
-            st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
+            st.rerun() # Rerun to clear the chat input after submission
 
 def show_budget_page():
     st.title("📝 Budget Details")
