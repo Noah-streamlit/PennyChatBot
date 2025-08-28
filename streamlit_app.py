@@ -1,4 +1,3 @@
-# main.py
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -69,21 +68,21 @@ try:
 except Exception as e:
     st.error(f"Error creating Gemini model: {e}")
 
-# --- Custom CSS for a light purple and gray theme ---
+# --- Custom CSS for a Dark Mode theme ---
 st.markdown("""
 <style>
     /* General styling for the main app container and body */
     .stApp {
-        background-color: #f5eefc; /* A very light purple */
-        color: #333333; /* Dark gray for text */
+        background-color: #1a1a2e; /* Dark blue-purple background */
+        color: #e0e0e0; /* Light gray for general text */
         font-family: 'Segoe UI', Arial, sans-serif;
     }
 
     /* Styling for headers */
     h1, h2, h3, h4, h5, h6 {
-        color: #8a2be2; /* A beautiful purple for headers */
+        color: #e94560; /* A vibrant red-pink for headers */
         font-family: 'Segoe UI', Arial, sans-serif;
-        font-weight: 600; /* Bolder headers */
+        font-weight: 700; /* Bolder headers */
     }
 
     /* Styling for various input labels */
@@ -92,61 +91,103 @@ st.markdown("""
     .stNumberInput > label,
     .stDateInput > label,
     .stForm > label {
-        color: #333333;
+        color: #e0e0e0;
         font-weight: bold;
         font-family: 'Segoe UI', Arial, sans-serif;
     }
     
     /* Styling for buttons */
     .stButton > button {
-        background-color: #ba55d3; /* A medium orchid purple */
+        background-color: #537d88; /* A muted teal-blue */
         color: white !important;
-        border: 2px solid #ba55d3;
-        border-radius: 20px; /* More rounded corners for a modern feel */
-        padding: 10px 20px;
+        border: 2px solid #537d88;
+        border-radius: 8px; /* Slightly less rounded for professional look */
+        padding: 10px 25px;
         font-family: 'Segoe UI', Arial, sans-serif;
         font-weight: 600;
-        transition: background-color 0.3s ease, border-color 0.3s ease;
+        transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
     }
     .stButton > button:hover {
-        background-color: #9370db; /* A medium purple for hover */
-        border-color: #9370db;
+        background-color: #72a0a8; /* Lighter teal-blue on hover */
+        border-color: #72a0a8;
         color: white !important;
+        transform: translateY(-2px); /* Slight lift effect */
     }
 
     /* Styling for the sidebar */
     .css-1d391kg { /* This is the class for the sidebar container */
-        background-color: #e6e6fa; /* Light steel blue, complementing the theme */
-        border-right: 1px solid #d8bfd8;
+        background-color: #0f3460; /* Darker blue for sidebar */
+        border-right: 1px solid #16213e;
         font-family: 'Segoe UI', Arial, sans-serif;
-        padding-top: 2rem; /* Add some padding to the top */
+        padding-top: 2rem;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for definition */
+    }
+    .css-1d391kg .stButton > button { /* Sidebar button specific styling */
+        background-color: #e94560; /* Use accent color for sidebar buttons */
+        border-color: #e94560;
+        width: 100%; /* Make sidebar buttons full width */
+        margin-bottom: 10px;
+    }
+    .css-1d391kg .stButton > button:hover {
+        background-color: #ff6a80; /* Lighter accent on hover */
+        border-color: #ff6a80;
     }
 
     /* Styling for chat messages */
     .stChatMessage {
-        background-color: #e6e6fa; /* Lavender color for chat bubbles */
-        border-radius: 15px; /* Softer, rounded corners */
-        padding: 15px; /* More padding inside */
-        margin-bottom: 15px; /* More space between messages */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        background-color: #2e2e4e; /* Darker chat bubble */
+        border-radius: 12px; /* Smooth rounded corners */
+        padding: 15px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
         font-family: 'Segoe UI', Arial, sans-serif;
+        border-left: 3px solid #e94560; /* Accent border */
+    }
+    .stChatMessage.st-chat-message-user {
+        background-color: #3f3f6e; /* Slightly different shade for user messages */
+        border-left: 3px solid #537d88; /* Different accent for user */
     }
 
-    /* Styling for the main content block, including chat input */
-    .st-emotion-cache-1c7v05w {
-        background-color: #dcd0ff; /* Light purple-gray */
-        border-radius: 15px;
-        padding: 20px; /* Add internal padding */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Styling for the main content block, including chat input and forms */
+    .st-emotion-cache-1c7v05w, .stForm {
+        background-color: #1a1a2e; /* Match main background or a slightly lighter shade */
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         font-family: 'Segoe UI', Arial, sans-serif;
+        border: 1px solid #16213e; /* Subtle border */
     }
     
-    /* Override specific component styling for forms to match the theme */
-    .stForm {
-        background-color: #dcd0ff;
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Text input fields */
+    .stTextInput > div > div > input, .stTextArea > div > div > textarea {
+        background-color: #2d2d4a; /* Darker input fields */
+        color: #e0e0e0;
+        border: 1px solid #537d88;
+        border-radius: 5px;
+        padding: 10px;
+    }
+    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
+        border-color: #e94560; /* Highlight focus with accent color */
+        box-shadow: 0 0 0 0.1rem rgba(233, 69, 96, 0.5);
+    }
+    
+    /* Info and Error messages */
+    .stAlert {
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .stAlert.st-success {
+        background-color: #28a745;
+        color: white;
+    }
+    .stAlert.st-error {
+        background-color: #dc3545;
+        color: white;
+    }
+    .stAlert.st-info {
+        background-color: #17a2b8;
+        color: white;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -157,7 +198,7 @@ md = MarkdownIt()
 
 # --- Page Functions ---
 def show_welcome_page():
-    st.image('PennyBot_Logo.png', width=500)
+    # st.image('PennyBot_Logo.png', width=500) # Removed image as requested
     st.title("Penny's Budgeting Assistant")
     st.subheader("Your AI-powered peer for smart financial planning.")
     col1, col2 = st.columns(2)
@@ -178,8 +219,8 @@ def show_login_page():
         if submitted:
             if email:
                 st.session_state.logged_in = True
-                st.session_state.user_id = 'prototype_user_id'
-                st.session_state.user_name = 'Prototype User'
+                st.session_state.user_id = 'prototype_user_id' # This would be replaced by actual Firebase user ID
+                st.session_state.user_name = 'Prototype User' # This would be replaced by actual Firebase user name
                 st.session_state.page = 'home'
                 st.rerun()
             else:
@@ -205,6 +246,7 @@ def show_signup_page():
 
             else:
                 try:
+                    # Check if email already exists
                     docs = db.collection(f'artifacts/{app_id}/users').where(filter=FieldFilter("email", "==", email)).stream()
                     if len(list(docs)) > 0:
                         st.error("An account with this email already exists. Please log in.")
