@@ -19,7 +19,7 @@ try:
 except NameError:
     # If not running in Canvas, check for a local file.
     if os.path.exists('firebase_creds.json'):
-        with open('firebase_creds.json', 'r') as f:
+        with open('firebase_creeds.json', 'r') as f:
             firebase_config = json.load(f)
     else:
         st.error("Firebase configuration not found. Please provide a `firebase_creds.json` file or run this app in the Canvas environment.")
@@ -58,10 +58,13 @@ try:
     GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
     if not GOOGLE_API_KEY:
         st.error("Missing GEMINI_API_KEY. Please set it in your .env file.")
+        # Raise an exception to stop the app if the key is missing
+        raise ValueError("GEMINI_API_KEY is not set.")
     else:
         genai.configure(api_key=GOOGLE_API_KEY)
 except Exception as e:
     st.error(f"Error configuring Gemini AI: {e}")
+    st.stop()
 
 try:
     model = genai.GenerativeModel(model_name="gemini-2.0-flash")
@@ -198,7 +201,6 @@ md = MarkdownIt()
 
 # --- Page Functions ---
 def show_welcome_page():
-    # st.image('PennyBot_Logo.png', width=500) # Removed image as requested
     st.title("Penny's Budgeting Assistant")
     st.subheader("Your AI-powered peer for smart financial planning.")
     col1, col2 = st.columns(2)
@@ -219,8 +221,8 @@ def show_login_page():
         if submitted:
             if email:
                 st.session_state.logged_in = True
-                st.session_state.user_id = 'prototype_user_id' # This would be replaced by actual Firebase user ID
-                st.session_state.user_name = 'Prototype User' # This would be replaced by actual Firebase user name
+                st.session_state.user_id = 'prototype_user_id'
+                st.session_state.user_name = 'Prototype User'
                 st.session_state.page = 'home'
                 st.rerun()
             else:
@@ -246,7 +248,6 @@ def show_signup_page():
 
             else:
                 try:
-                    # Check if email already exists
                     docs = db.collection(f'artifacts/{app_id}/users').where(filter=FieldFilter("email", "==", email)).stream()
                     if len(list(docs)) > 0:
                         st.error("An account with this email already exists. Please log in.")
@@ -283,7 +284,6 @@ def show_home_page():
     
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
-            # Display the plain text content from session state
             st.markdown(message["content"], unsafe_allow_html=True)
 
     if prompt := st.chat_input("Ask Penny a question..."):
@@ -322,12 +322,10 @@ def show_home_page():
                 response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
                 assistant_response_raw = response.text
                 
-                # Sanitize the response by removing all Markdown formatting
                 assistant_response_plain = md.render(assistant_response_raw)
                 
                 st.markdown(assistant_response_plain, unsafe_allow_html=True)
         
-        # Append the plain, sanitized text to the session state for consistency
         st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
 
 def show_budget_page():
@@ -451,7 +449,6 @@ def show_financial_goals_page():
                     response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(prompt)
                     st.subheader("Penny's Achievability Analysis")
                     
-                    # Sanitize the response by removing all Markdown formatting
                     rendered_text = md.render(response.text)
                     st.markdown(rendered_text, unsafe_allow_html=True)
 
