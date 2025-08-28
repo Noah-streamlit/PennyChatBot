@@ -279,7 +279,6 @@ st.markdown("""
         background-color: #FF9B9B;
         transform: translateY(-2px);
     }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -388,8 +387,17 @@ def show_home_page():
         prompt = None
         if user_input:
             prompt = user_input
+        # FIX: Add a check to ensure recorded_audio is not None before using it
         elif recorded_audio:
-            prompt = recorded_audio
+            # You can process the audio to text here using a library if needed
+            # For this example, we'll just use a placeholder text.
+            prompt = "I've received your voice input. Please type your query."
+            # A more advanced app would use a speech-to-text API here:
+            # from speech_recognition import Recognizer, AudioFile
+            # r = Recognizer()
+            # with AudioFile(io.BytesIO(recorded_audio['bytes'])) as source:
+            #     audio_data = r.record(source)
+            #     prompt = r.recognize_google(audio_data)
 
         if prompt:
             st.session_state.messages.append({"role": "user", "content": prompt})
