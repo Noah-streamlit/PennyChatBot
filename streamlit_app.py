@@ -9,6 +9,7 @@ import time
 from gtts import gTTS
 import io
 import base64
+# Removed the import for streamlit_mic_recorder
 
 # --- Gemini AI Setup ---
 load_dotenv()
@@ -248,34 +249,45 @@ st.markdown("""
         border-radius: 10px; /* Slightly rounded corners for the logo */
     }
 
-    /* Positioning for the voice button next to chat input */
-    .chat-input-container {
-        display: flex;
-        align-items: flex-end; /* Align items at the bottom */
-        gap: 10px;
-        width: 100%;
-        margin-top: 20px; /* Space above chat input */
-    }
-    .chat-input-container > div:first-child { /* Targets the st.chat_input */
-        flex-grow: 1;
-    }
-    .st-mic-recorder-button { /* Custom styling for mic recorder button */
-        background-color: #FF7F9F; /* Pink accent for mic */
-        color: white !important;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 15px;
-        font-weight: 600;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        height: 48px; /* Match height of chat input for better alignment */
+    /* Styling for the voice input button to look like a mic icon */
+    .mic-button-container {
         display: flex;
         align-items: center;
         justify-content: center;
+        height: 48px; /* Matches the chat input height */
     }
-    .st-mic-recorder-button:hover {
+    .mic-button-container button {
+        background-color: #FF7F9F;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+    }
+    .mic-button-container button:hover {
         background-color: #FF9B9B;
-        transform: translateY(-2px);
+    }
+    /* Hide the default camera_input label */
+    .stCameraInput > label {
+        display: none !important;
+    }
+    .stCameraInput > div > button {
+        background-color: #FF7F9F !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 48px;
+        height: 48px;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    .stCameraInput > div > button:hover {
+        background-color: #FF9B9B !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -335,10 +347,9 @@ def text_to_speech_and_play(text):
         os.remove("response.mp3")
     
 def show_home_page():
-    # Custom header with logo
+    # Header without the logo
     st.markdown("""
         <div class="main-header">
-            <img src="https://i.ibb.co/YyY1q6F/Penny-Bot-Logo.png" alt="Penny Bot Logo">
             <h1>Chat with Penny</h1>
         </div>
         <p style="color: #A0AABA; margin-bottom: 30px;">Hello there! I'm Penny, your budgeting assistant. How can I help you today?</p>
@@ -363,23 +374,26 @@ def show_home_page():
         with st.chat_message(message["role"]):
             st.markdown(message["content"], unsafe_allow_html=True)
             
-    # Input area with integrated voice button using a more stable component
+    # Input area with integrated voice button using the more stable st.camera_input
     col_chat_input, col_mic = st.columns([1, 0.15])
     
     with col_chat_input:
         user_input = st.chat_input("Ask Penny a question...", key="chat_input")
     
     with col_mic:
-        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-        voice_input_file = st.camera_input("🎙️", help="Record a voice message", label_visibility="collapsed")
+        st.markdown("""
+            <div style='margin-top: 20px;'></div>
+            <div class="mic-button-container">
+                <button onclick="document.querySelector('.stCameraInput input').click()">🎙️</button>
+            </div>
+        """, unsafe_allow_html=True)
+        voice_input_file = st.camera_input("", label_visibility="collapsed")
     
     prompt = None
     if user_input:
         prompt = user_input
-    # FIX: Check if a voice file was captured
     elif voice_input_file:
-        # NOTE: A real app would use a speech-to-text API here.
-        # This is a placeholder to show the voice input was received successfully.
+        # A real app would use a speech-to-text API here.
         st.info("Voice input detected! (Full speech-to-text conversion is a premium feature not included in this prototype.)")
         prompt = "User has provided voice input." 
     
