@@ -274,36 +274,37 @@ def show_welcome_page():
     with col1:
         if st.button("Login"):
             st.session_state.page = 'login'
-            st.rerun()
+            st.experimental_rerun()
     with col2:
         if st.button("Sign Up"):
             st.session_state.page = 'signup'
-            st.rerun()
+            st.experimental_rerun()
 
 def show_login_page():
     st.title("Login to Your Account")
-    st.info("This is a simplified prototype. Just enter an email to 'log in'.")
+    st.info("This is a simplified prototype. Just enter a name and email to 'log in'.")
     with st.form("login_form"):
+        user_name = st.text_input("First Name:")
         email = st.text_input("Email Address")
         password = st.text_input("Password", type="password")
         submitted = st.form_submit_button("Enter")
 
         if submitted:
-            if email:
+            if email and user_name:
                 st.session_state.logged_in = True
                 st.session_state.user_id = email
-                st.session_state.user_name = "User"
+                st.session_state.user_name = user_name
                 st.session_state.page = 'home'
-                st.rerun()
+                st.experimental_rerun()
             else:
-                st.error("Please enter an email to log in.")
+                st.error("Please enter a name and email to log in.")
 
 def show_signup_page():
     st.title("Create Your Account")
     st.info("This feature is currently disabled. Please use the login page to proceed.")
     if st.button("Go to Login"):
         st.session_state.page = 'login'
-        st.rerun()
+        st.experimental_rerun()
         
 # Function to convert text to speech and play
 def text_to_speech_and_play(text):
@@ -317,12 +318,13 @@ def text_to_speech_and_play(text):
         os.remove("response.mp3")
     
 def show_home_page():
+    user_name = st.session_state.get('user_name', 'User')
     # Header without the logo
-    st.markdown("""
+    st.markdown(f"""
         <div class="main-header">
             <h1>Chat with Penny</h1>
         </div>
-        <p style="color: #A0AABA; margin-bottom: 30px;">Hello there! I'm Penny, your budgeting assistant. How can I help you today?</p>
+        <p style="color: #A0AABA; margin-bottom: 30px;">Hello there, **{user_name}**! I'm Penny, your budgeting assistant. How can I help you today?</p>
     """, unsafe_allow_html=True)
     
     # Persona selection as a segmented control (custom CSS handles appearance)
@@ -349,38 +351,45 @@ def show_home_page():
     
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # Display the user's message immediately
         with st.chat_message("user"):
             st.markdown(prompt)
         
+        # Display a thinking message while waiting for the response
         with st.chat_message("assistant"):
-            persona_prompt = ""
-            if st.session_state.persona == "Friendly":
-                persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging."
-            elif st.session_state.persona == "Professional":
-                persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
-            
-            budget_data = st.session_state.get('budget', {})
-            budget_info = f"""
-            Here is the user's current budget information:
-            - Monthly Income: {budget_data.get('income', 'N/A')}
-            - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
-            - Rent: {budget_data.get('rent', 'N/A')}
-            - Food: {budget_data.get('food', 'N/A')}
-            - Transport: {budget_data.get('transport', 'N/A')}
-            - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
-            - Extra Info: {budget_data.get('extra_info', 'None provided')}
-            Use this information to answer the user's questions.
-            """
-            full_prompt = f"{persona_prompt}\n\n{budget_info}\n\nUser: {prompt}"
-            
             with st.spinner('Thinking...'):
+                persona_prompt = ""
+                if st.session_state.persona == "Friendly":
+                    persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging. Address the user by their name."
+                elif st.session_state.persona == "Professional":
+                    persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice. Address the user by their name."
+                
+                budget_data = st.session_state.get('budget', {})
+                budget_info = f"""
+                Here is the user's current budget information:
+                - Monthly Income: {budget_data.get('income', 'N/A')}
+                - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
+                - Rent: {budget_data.get('rent', 'N/A')}
+                - Food: {budget_data.get('food', 'N/A')}
+                - Transport: {budget_data.get('transport', 'N/A')}
+                - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
+                - Extra Info: {budget_data.get('extra_info', 'None provided')}
+                
+                Analyze this information to provide a helpful response.
+                """
+                full_prompt = f"{persona_prompt}\n\nUser's Name: {user_name}\n\n{budget_info}\n\nUser's Question: {prompt}"
+                
                 response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
                 assistant_response_raw = response.text
                 assistant_response_plain = md.render(assistant_response_raw)
+                
                 st.markdown(assistant_response_plain, unsafe_allow_html=True)
+                # You can comment out the next line if you don't want the audio
                 text_to_speech_and_play(assistant_response_raw)
+        
         st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
-        st.rerun()
+        st.experimental_rerun() # Use this for a smoother state update
 
 def show_budget_page():
     st.title("📝 Budget Details")
@@ -420,7 +429,7 @@ def show_budget_page():
                 }
                 st.success("Budget details saved successfully!")
                 time.sleep(1)
-                st.rerun()
+                st.experimental_rerun()
             except ValueError:
                 st.error("Please ensure all financial inputs are valid numbers.")
 
@@ -466,7 +475,7 @@ def show_financial_goals_page():
                     'time_span': time_span_val,
                 })
                 st.success("Goal saved!")
-                st.rerun()
+                st.experimental_rerun()
             except ValueError:
                 st.error("Please enter valid numbers for amount and time span.")
 
@@ -522,7 +531,7 @@ def show_log_out_page():
         st.success("You have been logged out successfully.")
         st.info("Redirecting to the welcome page...")
         time.sleep(1)
-        st.rerun()
+        st.experimental_rerun()
 
 # --- Main App Logic ---
 if 'page' not in st.session_state:
@@ -536,16 +545,16 @@ if st.session_state.logged_in:
         st.markdown("---")
         if st.button("Home"):
             st.session_state.page = 'home'
-            st.rerun()
+            st.experimental_rerun()
         if st.button("Budget"):
             st.session_state.page = 'budget'
-            st.rerun()
+            st.experimental_rerun()
         if st.button("Financial Goals"):
             st.session_state.page = 'goals'
-            st.rerun()
+            st.experimental_rerun()
         if st.button("Graphs"):
             st.session_state.page = 'graphs'
-            st.rerun()
+            st.experimental_rerun()
         if st.button("Log Out"):
             st.session_state.page = 'logout'
 
@@ -567,4 +576,4 @@ elif st.session_state.logged_in and st.session_state.page == 'logout':
     show_log_out_page()
 else:
     st.session_state.page = 'welcome'
-    st.rerun()
+    st.experimental_rerun()
