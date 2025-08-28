@@ -19,7 +19,8 @@ try:
 except NameError:
     # If not running in Canvas, check for a local file.
     if os.path.exists('firebase_creds.json'):
-        with open('firebase_creeds.json', 'r') as f:
+        # FIXED: Corrected the typo from 'creeds' to 'creds'
+        with open('firebase_creds.json', 'r') as f:
             firebase_config = json.load(f)
     else:
         st.error("Firebase configuration not found. Please provide a `firebase_creds.json` file or run this app in the Canvas environment.")
@@ -58,7 +59,6 @@ try:
     GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
     if not GOOGLE_API_KEY:
         st.error("Missing GEMINI_API_KEY. Please set it in your .env file.")
-        # Raise an exception to stop the app if the key is missing
         raise ValueError("GEMINI_API_KEY is not set.")
     else:
         genai.configure(api_key=GOOGLE_API_KEY)
