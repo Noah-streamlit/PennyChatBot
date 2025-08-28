@@ -274,11 +274,11 @@ def show_welcome_page():
     with col1:
         if st.button("Login"):
             st.session_state.page = 'login'
-            st.experimental_rerun()
+            st.rerun()
     with col2:
         if st.button("Sign Up"):
             st.session_state.page = 'signup'
-            st.experimental_rerun()
+            st.rerun()
 
 def show_login_page():
     st.title("Login to Your Account")
@@ -295,7 +295,7 @@ def show_login_page():
                 st.session_state.user_id = email
                 st.session_state.user_name = user_name
                 st.session_state.page = 'home'
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Please enter a name and email to log in.")
 
@@ -304,7 +304,7 @@ def show_signup_page():
     st.info("This feature is currently disabled. Please use the login page to proceed.")
     if st.button("Go to Login"):
         st.session_state.page = 'login'
-        st.experimental_rerun()
+        st.rerun()
         
 # Function to convert text to speech and play
 def text_to_speech_and_play(text):
@@ -389,7 +389,7 @@ def show_home_page():
                 text_to_speech_and_play(assistant_response_raw)
         
         st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
-        st.experimental_rerun() # Use this for a smoother state update
+        st.rerun() # Replaced st.experimental_rerun()
 
 def show_budget_page():
     st.title("📝 Budget Details")
@@ -429,7 +429,7 @@ def show_budget_page():
                 }
                 st.success("Budget details saved successfully!")
                 time.sleep(1)
-                st.experimental_rerun()
+                st.rerun()
             except ValueError:
                 st.error("Please ensure all financial inputs are valid numbers.")
 
@@ -475,7 +475,7 @@ def show_financial_goals_page():
                     'time_span': time_span_val,
                 })
                 st.success("Goal saved!")
-                st.experimental_rerun()
+                st.rerun()
             except ValueError:
                 st.error("Please enter valid numbers for amount and time span.")
 
@@ -531,7 +531,7 @@ def show_log_out_page():
         st.success("You have been logged out successfully.")
         st.info("Redirecting to the welcome page...")
         time.sleep(1)
-        st.experimental_rerun()
+        st.rerun()
 
 # --- Main App Logic ---
 if 'page' not in st.session_state:
@@ -545,16 +545,16 @@ if st.session_state.logged_in:
         st.markdown("---")
         if st.button("Home"):
             st.session_state.page = 'home'
-            st.experimental_rerun()
+            st.rerun()
         if st.button("Budget"):
             st.session_state.page = 'budget'
-            st.experimental_rerun()
+            st.rerun()
         if st.button("Financial Goals"):
             st.session_state.page = 'goals'
-            st.experimental_rerun()
+            st.rerun()
         if st.button("Graphs"):
             st.session_state.page = 'graphs'
-            st.experimental_rerun()
+            st.rerun()
         if st.button("Log Out"):
             st.session_state.page = 'logout'
 
@@ -576,4 +576,4 @@ elif st.session_state.logged_in and st.session_state.page == 'logout':
     show_log_out_page()
 else:
     st.session_state.page = 'welcome'
-    st.experimental_rerun()
+    st.rerun()
