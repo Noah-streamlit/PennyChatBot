@@ -29,22 +29,24 @@ try:
 except Exception as e:
     st.error(f"Error creating Gemini model: {e}")
 
-# --- Custom CSS for a Dark Mode theme (App-Store Level) ---
+# --- Custom CSS for a Professional and Clean Theme ---
 st.markdown("""
 <style>
     /* General styling for the main app container and body */
     .stApp {
-        background-color: #0A192F; /* Deep navy background, modern and sleek */
-        color: #F0F0F0; /* Off-white for general text */
+        background-color: #F8F9FA; /* Light gray background for a clean feel */
+        color: #343A40; /* Dark gray for general text */
         font-family: 'Segoe UI', Arial, sans-serif;
     }
 
     /* Styling for headers */
     h1, h2, h3, h4, h5, h6 {
-        color: #64FFDA; /* Mint green for headers, a modern accent */
+        color: #007BFF; /* A clean blue for headers */
         font-family: 'Segoe UI', Arial, sans-serif;
-        font-weight: 700;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        font-weight: 600;
+        border-bottom: 2px solid #E9ECEF;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
     }
 
     /* Styling for various input labels */
@@ -53,103 +55,92 @@ st.markdown("""
     .stNumberInput > label,
     .stDateInput > label,
     .stForm > label {
-        color: #F0F0F0;
-        font-weight: bold;
+        color: #495057;
+        font-weight: 500;
     }
     
     /* Styling for buttons */
     .stButton > button {
-        background-color: #263353; /* A soft, dark purple for buttons */
-        color: #F0F0F0 !important;
-        border: 2px solid #304169;
-        border-radius: 12px;
-        padding: 10px 25px;
+        background-color: #007BFF; /* Blue for primary action buttons */
+        color: white !important;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
         font-weight: 600;
-        transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+        transition: background-color 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .stButton > button:hover {
-        background-color: #304169; /* Lighter shade on hover */
-        border-color: #64FFDA; /* Mint green border on hover */
-        color: white !important;
+        background-color: #0056B3; /* Darker blue on hover */
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(100, 255, 218, 0.15); /* Subtle glow */
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
     }
-
+    
     /* Styling for the sidebar */
     .css-1d391kg {
-        background-color: #0B213A; /* Slightly darker shade for sidebar */
-        border-right: 1px solid #1A314A;
+        background-color: #FFFFFF; /* White background for the sidebar */
+        border-right: 1px solid #DEE2E6;
         padding-top: 2rem;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
     }
     .css-1d391kg .stButton > button {
-        background-color: #64FFDA; /* Accent color for sidebar buttons */
-        color: #0A192F !important;
-        border-color: #64FFDA;
+        background-color: #6C757D; /* Gray for sidebar buttons */
+        color: white !important;
+        border: none;
         width: 100%;
         margin-bottom: 10px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
     .css-1d391kg .stButton > button:hover {
-        background-color: #79FDD4;
-        border-color: #79FDD4;
+        background-color: #5A6268;
+        transform: translateY(0);
+        box-shadow: none;
     }
 
     /* Styling for chat messages */
     .stChatMessage {
-        background: #12243D; /* Subtle background for depth */
+        background: #F0F2F5; /* Light gray for chat messages */
         border-radius: 12px;
         padding: 15px;
         margin-bottom: 12px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        border-left: 3px solid #64FFDA; /* Accent border */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid #007BFF; /* Blue accent border */
     }
     .stChatMessage.st-chat-message-user {
-        background: #1A314A; /* Slightly different background for user messages */
-        border-left: 3px solid #FF7F9F; /* Different accent for user */
+        background: #E9ECEF; /* Slightly different gray for user messages */
+        border-left: 4px solid #6C757D; /* Gray accent for user */
     }
 
     /* Styling for the main content block, including chat input and forms */
     .st-emotion-cache-1c7v05w, .stForm {
-        background-color: #12243D;
+        background-color: #FFFFFF;
         border-radius: 10px;
         padding: 20px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        border: 1px solid #1A314A;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #DEE2E6;
     }
     
     /* Text input fields */
     .stTextInput > div > div > input, .stTextArea > div > div > textarea, .st-emotion-cache-1g85z9l {
-        background-color: #0B213A; /* Darker input fields */
-        color: #F0F0F0;
-        border: 1px solid #1A314A;
+        background-color: #FFFFFF;
+        color: #343A40;
+        border: 1px solid #CED4DA;
         border-radius: 8px;
         padding: 10px;
-        transition: border-color 0.3s ease;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
-    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-        border-color: #64FFDA;
-        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
-    }
-    .st-emotion-cache-1g85z9l > div > div > input {
-        background-color: #0B213A; /* Chat input specific styling */
-        color: #F0F0F0;
-        border: 1px solid #1A314A;
-        border-radius: 8px;
-        padding: 10px;
-        transition: border-color 0.3s ease;
-    }
-    .st-emotion-cache-1g85z9l > div > div > input:focus {
-        border-color: #64FFDA;
-        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
+    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus, .st-emotion-cache-1g85z9l > div > div > input:focus {
+        border-color: #007BFF;
+        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
     }
     
     /* Chat input container styling */
     .st-emotion-cache-1g85z9l {
         border-radius: 12px;
         padding: 8px;
-        background: #12243D;
-        border: 1px solid #1A314A;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        background: #FFFFFF;
+        border: 1px solid #DEE2E6;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     /* Info and Error messages */
@@ -157,28 +148,49 @@ st.markdown("""
         border-radius: 8px;
         padding: 15px;
         margin-bottom: 15px;
+        border: 1px solid transparent;
     }
     .stAlert.st-success {
-        background-color: #4CAF50;
-        color: white;
+        background-color: #D4EDDA;
+        color: #155724;
+        border-color: #C3E6CB;
     }
     .stAlert.st-error {
-        background-color: #F44336;
-        color: white;
+        background-color: #F8D7DA;
+        color: #721C24;
+        border-color: #F5C6CB;
     }
     .stAlert.st-info {
-        background-color: #2196F3;
+        background-color: #D1ECF1;
+        color: #0C5460;
+        border-color: #BEE5EB;
+    }
+    
+    /* Style for the segmented persona control */
+    .stRadio [data-baseweb="radio"] label {
+        background-color: #E9ECEF;
+        border-radius: 8px;
+        padding: 8px 15px;
+        margin: 5px;
+        color: #495057;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+    .stRadio [data-baseweb="radio"][aria-checked="true"] label {
+        background-color: #007BFF;
         color: white;
     }
 
-    /* Icon adjustments for better visibility */
-    .stChatMessage .st-emotion-cache-1wmy06w img {
-        border: 2px solid #64FFDA;
+    /* Style for the main page header with Penny's logo */
+    .main-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
     }
-    .stChatMessage.st-chat-message-user .st-emotion-cache-1wmy06w img {
-        border: 2px solid #FF7F9F;
+    .main-header img {
+        height: 60px; /* Adjust size as needed */
     }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -237,17 +249,29 @@ def text_to_speech_and_play(text):
         os.remove("response.mp3")
     
 def show_home_page():
-    st.title("💬 Chat with Penny")
-    st.markdown("Hello there! I'm Penny, your budgeting assistant. How can I help you today?")
-    st.markdown("---")
-
-    if "persona" not in st.session_state:
-        st.session_state.persona = "Friendly"
-    st.session_state.persona = st.radio(
-        "Choose Penny's persona:",
-        ("Friendly", "Professional"),
-        index=("Friendly", "Professional").index(st.session_state.persona)
-    )
+    # Use HTML/CSS for a custom header with logo
+    st.markdown("""
+        <div class="main-header">
+            <img src="https://i.ibb.co/YyY1q6F/Penny-Bot-Logo.png" alt="Penny Bot Logo">
+            <h1>Chat with Penny</h1>
+        </div>
+        <p style="color: #6C757D;">Hello there! I'm Penny, your budgeting assistant. How can I help you today?</p>
+        <hr style="border-top: 2px solid #E9ECEF; margin-top: 20px; margin-bottom: 20px;">
+    """, unsafe_allow_html=True)
+    
+    # Use buttons for a better persona selector
+    col1, col2 = st.columns([1, 10])
+    with col1:
+        st.write("Persona:")
+    with col2:
+        persona = st.radio(
+            "Choose Penny's persona:",
+            ("Friendly", "Professional"),
+            index=("Friendly", "Professional").index(st.session_state.get('persona', 'Friendly')),
+            horizontal=True,
+            label_visibility="collapsed"
+        )
+        st.session_state.persona = persona
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
