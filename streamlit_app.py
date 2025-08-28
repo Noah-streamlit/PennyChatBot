@@ -345,25 +345,10 @@ def show_home_page():
             st.markdown(message["content"], unsafe_allow_html=True)
             
     # Input area for chat
-    col_chat_input, col_mic = st.columns([1, 0.1])
-    
-    with col_chat_input:
-        user_input = st.chat_input("Ask Penny a question...", key="chat_input")
-    
-    with col_mic:
-        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-        voice_button = st.button("Voice Chat", key="voice_button")
-        st.markdown("<div style='margin-top: 20px; text-align: center;'><button class='mic-button' type='button' onclick='document.querySelector(\"#voice_button\").click()'><img src='https://i.ibb.co/L89kYVn/mic-icon.png' alt='Voice Chat' style='width: 48px; height: 48px;'></button></div>", unsafe_allow_html=True)
-        
-    prompt = None
-    if user_input:
-        prompt = user_input
-    elif voice_button:
+    st.markdown("<div style='margin-top: 20px; text-align: center;'>", unsafe_allow_html=True)
+    if st.button("Talk to Penny", key="voice_button"):
         st.info("Voice input simulated! (Actual voice-to-text requires an external API)")
         prompt = "User has provided voice input."
-    
-    # Process the prompt if it exists
-    if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -397,6 +382,8 @@ def show_home_page():
                 text_to_speech_and_play(assistant_response_raw)
         st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
         st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 def show_budget_page():
     st.title("📝 Budget Details")
