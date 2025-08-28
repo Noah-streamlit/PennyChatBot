@@ -1,11 +1,10 @@
 google-generativeai
-dotenv
-load_dotenv
-markdown
+python-dotenv
 markdown-it-py
 streamlit
-firebase
-firebase_admin
+firebase-admin
 pandas
 plotly
-plotly.express
+gTTS
+streamlit-mic-recorder
+pydub
