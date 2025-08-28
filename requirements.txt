@@ -5,6 +5,4 @@ streamlit
 firebase-admin
 pandas
 plotly
-gTTS
-streamlit-mic-recorder
-pydub
+
