@@ -6,6 +6,10 @@ import os
 from dotenv import load_dotenv
 from markdown_it import MarkdownIt
 import time
+from gtts import gTTS
+import io
+import base64
+from streamlit_mic_recorder import mic_recorder
 
 # --- Gemini AI Setup ---
 load_dotenv()
@@ -220,7 +224,18 @@ def show_signup_page():
     if st.button("Go to Login"):
         st.session_state.page = 'login'
         st.rerun()
-
+        
+# Function to convert text to speech and play
+def text_to_speech_and_play(text):
+    tts = gTTS(text=text, lang='en')
+    tts.save("response.mp3")
+    audio_file = open("response.mp3", "rb")
+    audio_bytes = audio_file.read()
+    st.audio(audio_bytes, format="audio/mp3", autoplay=True)
+    audio_file.close()
+    if os.path.exists("response.mp3"):
+        os.remove("response.mp3")
+    
 def show_home_page():
     st.title("💬 Chat with Penny")
     st.markdown("Hello there! I'm Penny, your budgeting assistant. How can I help you today?")
@@ -240,44 +255,94 @@ def show_home_page():
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"], unsafe_allow_html=True)
+            
+    # Add a button to switch to voice chat mode
+    if 'voice_mode' not in st.session_state:
+        st.session_state.voice_mode = False
+    
+    if st.button("🎙️ Talk to Penny"):
+        st.session_state.voice_mode = not st.session_state.voice_mode
+        st.rerun()
 
-    if prompt := st.chat_input("Ask Penny a question..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        
-        with st.chat_message("assistant"):
-            persona_prompt = ""
-            if st.session_state.persona == "Friendly":
-                persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging."
-            elif st.session_state.persona == "Professional":
-                persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
-            
-            # Retrieve budget data from session state
-            budget_data = st.session_state.get('budget', {})
-            
-            budget_info = f"""
-            Here is the user's current budget information:
-            - Monthly Income: {budget_data.get('income', 'N/A')}
-            - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
-            - Rent: {budget_data.get('rent', 'N/A')}
-            - Food: {budget_data.get('food', 'N/A')}
-            - Transport: {budget_data.get('transport', 'N/A')}
-            - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
-            - Extra Info: {budget_data.get('extra_info', 'None provided')}
-            Use this information to answer the user's questions.
-            """
-            full_prompt = f"{persona_prompt}\n\n{budget_info}\n\nUser: {prompt}"
-            
-            with st.spinner('Thinking...'):
-                response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
-                assistant_response_raw = response.text
+    if st.session_state.voice_mode:
+        st.info("Voice chat is active. Click the microphone to start talking.")
+        # Mic recorder component
+        st.session_state.audio_text = mic_recorder(
+            start_prompt="Start Recording",
+            stop_prompt="Stop Recording",
+            just_once=True,
+            use_container_width=True,
+            key='mic_recorder'
+        )
+        if st.session_state.audio_text:
+            prompt = st.session_state.audio_text
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+            with st.chat_message("assistant"):
+                persona_prompt = ""
+                if st.session_state.persona == "Friendly":
+                    persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging."
+                elif st.session_state.persona == "Professional":
+                    persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
                 
-                assistant_response_plain = md.render(assistant_response_raw)
+                budget_data = st.session_state.get('budget', {})
+                budget_info = f"""
+                Here is the user's current budget information:
+                - Monthly Income: {budget_data.get('income', 'N/A')}
+                - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
+                - Rent: {budget_data.get('rent', 'N/A')}
+                - Food: {budget_data.get('food', 'N/A')}
+                - Transport: {budget_data.get('transport', 'N/A')}
+                - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
+                - Extra Info: {budget_data.get('extra_info', 'None provided')}
+                Use this information to answer the user's questions.
+                """
+                full_prompt = f"{persona_prompt}\n\n{budget_info}\n\nUser: {prompt}"
                 
-                st.markdown(assistant_response_plain, unsafe_allow_html=True)
-        
-        st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
+                with st.spinner('Thinking...'):
+                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
+                    assistant_response_raw = response.text
+                    assistant_response_plain = md.render(assistant_response_raw)
+                    st.markdown(assistant_response_plain, unsafe_allow_html=True)
+                    text_to_speech_and_play(assistant_response_raw)
+            st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
+            st.session_state.audio_text = "" # Reset the audio text to avoid re-running
+            st.rerun()
+
+    # Regular text input if voice mode is off
+    if not st.session_state.voice_mode:
+        if prompt := st.chat_input("Ask Penny a question..."):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+            with st.chat_message("assistant"):
+                persona_prompt = ""
+                if st.session_state.persona == "Friendly":
+                    persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging."
+                elif st.session_state.persona == "Professional":
+                    persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
+                
+                budget_data = st.session_state.get('budget', {})
+                budget_info = f"""
+                Here is the user's current budget information:
+                - Monthly Income: {budget_data.get('income', 'N/A')}
+                - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
+                - Rent: {budget_data.get('rent', 'N/A')}
+                - Food: {budget_data.get('food', 'N/A')}
+                - Transport: {budget_data.get('transport', 'N/A')}
+                - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
+                - Extra Info: {budget_data.get('extra_info', 'None provided')}
+                Use this information to answer the user's questions.
+                """
+                full_prompt = f"{persona_prompt}\n\n{budget_info}\n\nUser: {prompt}"
+                
+                with st.spinner('Thinking...'):
+                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
+                    assistant_response_raw = response.text
+                    assistant_response_plain = md.render(assistant_response_raw)
+                    st.markdown(assistant_response_plain, unsafe_allow_html=True)
+            st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
 
 def show_budget_page():
     st.title("📝 Budget Details")
