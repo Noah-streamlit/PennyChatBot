@@ -9,7 +9,6 @@ import time
 from gtts import gTTS
 import io
 import base64
-# Removed the import for streamlit_mic_recorder
 
 # --- Gemini AI Setup ---
 load_dotenv()
@@ -236,7 +235,7 @@ st.markdown("""
         height: 0;
     }
 
-    /* Style for the main page header with Penny's logo */
+    /* Style for the main page header */
     .main-header {
         display: flex;
         align-items: center;
@@ -244,50 +243,21 @@ st.markdown("""
         margin-bottom: 20px;
         padding-top: 10px;
     }
-    .main-header img {
-        height: 60px; /* Adjust size as needed */
-        border-radius: 10px; /* Slightly rounded corners for the logo */
-    }
-
-    /* Styling for the voice input button to look like a mic icon */
-    .mic-button-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 48px; /* Matches the chat input height */
-    }
-    .mic-button-container button {
+    
+    /* Styling for the mic button */
+    .st-mic-button > button {
         background-color: #FF7F9F;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         border: none;
-        cursor: pointer;
+        border-radius: 8px;
+        color: #F0F0F0 !important;
+        padding: 10px 15px;
+        font-weight: 600;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    .mic-button-container button:hover {
+    .st-mic-button > button:hover {
         background-color: #FF9B9B;
-    }
-    /* Hide the default camera_input label */
-    .stCameraInput > label {
-        display: none !important;
-    }
-    .stCameraInput > div > button {
-        background-color: #FF7F9F !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 48px;
-        height: 48px;
-        padding: 0 !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-    }
-    .stCameraInput > div > button:hover {
-        background-color: #FF9B9B !important;
+        transform: translateY(-2px);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -374,28 +344,23 @@ def show_home_page():
         with st.chat_message(message["role"]):
             st.markdown(message["content"], unsafe_allow_html=True)
             
-    # Input area with integrated voice button using the more stable st.camera_input
+    # Input area for chat
     col_chat_input, col_mic = st.columns([1, 0.15])
     
     with col_chat_input:
         user_input = st.chat_input("Ask Penny a question...", key="chat_input")
     
     with col_mic:
-        st.markdown("""
-            <div style='margin-top: 20px;'></div>
-            <div class="mic-button-container">
-                <button onclick="document.querySelector('.stCameraInput input').click()">🎙️</button>
-            </div>
-        """, unsafe_allow_html=True)
-        voice_input_file = st.camera_input("", label_visibility="collapsed")
-    
+        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+        voice_button = st.button("🎙️", key="voice_button")
+        
     prompt = None
     if user_input:
         prompt = user_input
-    elif voice_input_file:
-        # A real app would use a speech-to-text API here.
-        st.info("Voice input detected! (Full speech-to-text conversion is a premium feature not included in this prototype.)")
-        prompt = "User has provided voice input." 
+    elif voice_button:
+        # Simulate voice input and get a response
+        st.info("Voice input simulated! (Actual voice-to-text requires an external API)")
+        prompt = "User has provided voice input."
     
     # Process the prompt if it exists
     if prompt:
@@ -504,7 +469,7 @@ def show_financial_goals_page():
                 prompt = f"Goal: {goal_name} for {goal_amount_val} over {time_span_val} months. Monthly saving needed: {monthly_saving_needed:.2f}. User's estimated monthly saving capacity: {monthly_saving_capacity:.2f}. Is this goal achievable? Provide a friendly, detailed explanation."
                 
                 with st.spinner('Checking your goal...'):
-                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(prompt)
+                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
                     st.subheader("Penny's Achievability Analysis")
                     
                     rendered_text = md.render(response.text)
