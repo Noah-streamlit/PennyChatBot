@@ -9,6 +9,7 @@ import time
 from gtts import gTTS
 import io
 import base64
+import datetime
 
 # --- Gemini AI Setup ---
 load_dotenv()
@@ -389,7 +390,7 @@ def show_home_page():
                 text_to_speech_and_play(assistant_response_raw)
         
         st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
-        st.rerun() # Replaced st.experimental_rerun()
+        st.rerun()
 
 def show_budget_page():
     st.title("📝 Budget Details")
@@ -454,9 +455,9 @@ def show_financial_goals_page():
                 goal_amount_val = float(goal_amount or 0)
                 time_span_val = int(time_span or 1)
                 
+                # Check achievability using Gemini
                 budget_data = st.session_state.get('budget', {})
                 monthly_saving_capacity = (budget_data.get('income', 0) or 0) - (budget_data.get('monthly_budget', 0) or 0)
-                
                 monthly_saving_needed = goal_amount_val / time_span_val
                 
                 prompt = f"Goal: {goal_name} for {goal_amount_val} over {time_span_val} months. Monthly saving needed: {monthly_saving_needed:.2f}. User's estimated monthly saving capacity: {monthly_saving_capacity:.2f}. Is this goal achievable? Provide a friendly, detailed explanation."
@@ -468,13 +469,14 @@ def show_financial_goals_page():
                     rendered_text = md.render(response.text)
                     st.markdown(rendered_text, unsafe_allow_html=True)
                 
-                # Save goal to session state
+                # Save goal to session state with savings history
                 st.session_state.goals.append({
                     'goal_name': goal_name,
                     'goal_amount': goal_amount_val,
                     'time_span': time_span_val,
+                    'savings_history': [],
                 })
-                st.success("Goal saved!")
+                st.success("Goal saved! You can now track your progress below.")
                 st.rerun()
             except ValueError:
                 st.error("Please enter valid numbers for amount and time span.")
@@ -483,9 +485,61 @@ def show_financial_goals_page():
     st.subheader("Your Saved Goals")
     if st.session_state.goals:
         for i, goal in enumerate(st.session_state.goals):
-            st.write(f"**Goal {i+1}:** {goal['goal_name']}")
-            st.write(f"**Cost:** {goal['goal_amount']:.2f}")
-            st.write(f"**Months:** {goal['time_span']}")
+            st.markdown(f"### {goal['goal_name']}")
+            
+            # Form to add a new savings contribution
+            with st.form(key=f"savings_form_{i}", clear_on_submit=True):
+                col1, col2 = st.columns(2)
+                with col1:
+                    savings_amount = st.number_input("Amount Saved:", min_value=0.0, step=1.0, format="%.2f", key=f"amount_{i}")
+                with col2:
+                    savings_date = st.date_input("Date:", datetime.date.today(), key=f"date_{i}")
+                
+                submit_savings = st.form_submit_button("Log Savings")
+                
+                if submit_savings:
+                    if savings_amount > 0:
+                        st.session_state.goals[i]['savings_history'].append({
+                            'date': savings_date,
+                            'amount': savings_amount
+                        })
+                        st.success(f"Saved ${savings_amount:.2f} logged for {goal['goal_name']}!")
+                        st.rerun()
+                    else:
+                        st.warning("Please enter a positive amount to log.")
+
+            # Calculate and display progress
+            total_saved = sum(item['amount'] for item in goal['savings_history'])
+            goal_amount = goal['goal_amount']
+            progress = min(total_saved / goal_amount, 1.0) if goal_amount > 0 else 0.0
+            remaining_amount = max(0, goal_amount - total_saved)
+            
+            st.markdown(f"**Total Saved:** ${total_saved:.2f}")
+            st.markdown(f"**Remaining:** ${remaining_amount:.2f}")
+            st.progress(progress)
+            st.markdown(f"**Progress:** {progress * 100:.1f}%")
+
+            # Display the line graph if there is savings data
+            if goal['savings_history']:
+                st.markdown("#### Progress Over Time")
+                # Create a DataFrame for plotting
+                df_history = pd.DataFrame(goal['savings_history'])
+                df_history['cumulative_amount'] = df_history['amount'].cumsum()
+                df_history['date'] = pd.to_datetime(df_history['date'])
+                
+                fig = px.line(
+                    df_history,
+                    x='date',
+                    y='cumulative_amount',
+                    title=f"Savings for {goal['goal_name']}",
+                    markers=True
+                )
+                
+                # Add a horizontal line for the goal amount
+                fig.add_hline(y=goal_amount, line_dash="dash", line_color="#FF7F9F", annotation_text="Goal", annotation_position="bottom right")
+
+                st.plotly_chart(fig)
+
             st.markdown("---")
     else:
         st.info("You haven't set any goals yet.")
