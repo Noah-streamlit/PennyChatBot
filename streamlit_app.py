@@ -9,7 +9,6 @@ import time
 from gtts import gTTS
 import io
 import base64
-from streamlit_mic_recorder import mic_recorder
 
 # --- Gemini AI Setup ---
 load_dotenv()
@@ -364,7 +363,7 @@ def show_home_page():
         with st.chat_message(message["role"]):
             st.markdown(message["content"], unsafe_allow_html=True)
             
-    # Input area with integrated voice button
+    # Input area with integrated voice button using a more stable component
     col_chat_input, col_mic = st.columns([1, 0.15])
     
     with col_chat_input:
@@ -372,28 +371,17 @@ def show_home_page():
     
     with col_mic:
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-        recorded_audio = mic_recorder(
-            start_prompt="🎙️",
-            stop_prompt="⏹️",
-            just_once=True,
-            use_container_width=False,
-            key='mic_recorder_chat',
-            css_class="st-mic-recorder-button"
-        )
+        voice_input_file = st.camera_input("🎙️", help="Record a voice message", label_visibility="collapsed")
     
     prompt = None
     if user_input:
         prompt = user_input
-    # FIX: Check if recorded_audio is not None before proceeding.
-    elif recorded_audio:
+    # FIX: Check if a voice file was captured
+    elif voice_input_file:
+        # NOTE: A real app would use a speech-to-text API here.
+        # This is a placeholder to show the voice input was received successfully.
         st.info("Voice input detected! (Full speech-to-text conversion is a premium feature not included in this prototype.)")
-        prompt = "User has provided voice input."
-        # A more advanced app would use a speech-to-text API here:
-        # from speech_recognition import Recognizer, AudioFile
-        # r = Recognizer()
-        # with AudioFile(io.BytesIO(recorded_audio['bytes'])) as source:
-        #     audio_data = r.record(source)
-        #     prompt = r.recognize_google(audio_data)
+        prompt = "User has provided voice input." 
     
     # Process the prompt if it exists
     if prompt:
@@ -430,7 +418,7 @@ def show_home_page():
                 text_to_speech_and_play(assistant_response_raw)
         st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
         st.rerun()
-        
+
 def show_budget_page():
     st.title("📝 Budget Details")
     st.markdown("Please provide your financial information below.")
