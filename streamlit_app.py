@@ -146,20 +146,6 @@ st.markdown("""
         align-items: center;
         gap: 10px; /* Space between input and button */
     }
-    .st-emotion-cache-1g85z9l input { /* This targets the actual text input within the chat input container */
-        background-color: #0B213A; /* Darker input field */
-        color: #F0F0F0;
-        border: 1px solid #1A314A;
-        border-radius: 8px;
-        padding: 10px;
-        flex-grow: 1; /* Allow input to take available space */
-    }
-    .st-emotion-cache-1g85z9l input:focus {
-        border-color: #64FFDA;
-        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
-    }
-
-    /* Style for the send button within the chat input */
     .st-emotion-cache-1g85z9l button {
         background-color: #64FFDA; /* Mint green send button */
         color: #0A192F !important;
@@ -389,15 +375,8 @@ def show_home_page():
             prompt = user_input
         # FIX: Add a check to ensure recorded_audio is not None before using it
         elif recorded_audio:
-            # You can process the audio to text here using a library if needed
-            # For this example, we'll just use a placeholder text.
-            prompt = "I've received your voice input. Please type your query."
-            # A more advanced app would use a speech-to-text API here:
-            # from speech_recognition import Recognizer, AudioFile
-            # r = Recognizer()
-            # with AudioFile(io.BytesIO(recorded_audio['bytes'])) as source:
-            #     audio_data = r.record(source)
-            #     prompt = r.recognize_google(audio_data)
+            st.info("Voice input received! A full-featured speech-to-text conversion is not implemented in this prototype, but you can see that the voice data was successfully captured.")
+            prompt = "The user has provided voice input. This is a placeholder for the transcribed text."
 
         if prompt:
             st.session_state.messages.append({"role": "user", "content": prompt})
