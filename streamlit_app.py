@@ -146,6 +146,19 @@ st.markdown("""
         align-items: center;
         gap: 10px; /* Space between input and button */
     }
+    .st-emotion-cache-1g85z9l input { /* This targets the actual text input within the chat input container */
+        background-color: #0B213A; /* Darker input field */
+        color: #F0F0F0;
+        border: 1px solid #1A314A;
+        border-radius: 8px;
+        padding: 10px;
+        flex-grow: 1; /* Allow input to take available space */
+    }
+    .st-emotion-cache-1g85z9l input:focus {
+        border-color: #64FFDA;
+        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
+    }
+    /* Style for the send button within the chat input */
     .st-emotion-cache-1g85z9l button {
         background-color: #64FFDA; /* Mint green send button */
         color: #0A192F !important;
@@ -352,66 +365,72 @@ def show_home_page():
             st.markdown(message["content"], unsafe_allow_html=True)
             
     # Input area with integrated voice button
-    with st.container():
-        col_chat_input, col_mic = st.columns([1, 0.15]) # Adjust column ratio for input and mic
+    col_chat_input, col_mic = st.columns([1, 0.15])
+    
+    with col_chat_input:
+        user_input = st.chat_input("Ask Penny a question...", key="chat_input")
+    
+    with col_mic:
+        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+        recorded_audio = mic_recorder(
+            start_prompt="🎙️",
+            stop_prompt="⏹️",
+            just_once=True,
+            use_container_width=False,
+            key='mic_recorder_chat',
+            css_class="st-mic-recorder-button"
+        )
+    
+    prompt = None
+    if user_input:
+        prompt = user_input
+    # FIX: Check if recorded_audio is not None before proceeding.
+    elif recorded_audio:
+        st.info("Voice input detected! (Full speech-to-text conversion is a premium feature not included in this prototype.)")
+        prompt = "User has provided voice input."
+        # A more advanced app would use a speech-to-text API here:
+        # from speech_recognition import Recognizer, AudioFile
+        # r = Recognizer()
+        # with AudioFile(io.BytesIO(recorded_audio['bytes'])) as source:
+        #     audio_data = r.record(source)
+        #     prompt = r.recognize_google(audio_data)
+    
+    # Process the prompt if it exists
+    if prompt:
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
         
-        with col_chat_input:
-            user_input = st.chat_input("Ask Penny a question...", key="chat_input")
+        with st.chat_message("assistant"):
+            persona_prompt = ""
+            if st.session_state.persona == "Friendly":
+                persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging."
+            elif st.session_state.persona == "Professional":
+                persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
+            
+            budget_data = st.session_state.get('budget', {})
+            budget_info = f"""
+            Here is the user's current budget information:
+            - Monthly Income: {budget_data.get('income', 'N/A')}
+            - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
+            - Rent: {budget_data.get('rent', 'N/A')}
+            - Food: {budget_data.get('food', 'N/A')}
+            - Transport: {budget_data.get('transport', 'N/A')}
+            - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
+            - Extra Info: {budget_data.get('extra_info', 'None provided')}
+            Use this information to answer the user's questions.
+            """
+            full_prompt = f"{persona_prompt}\n\n{budget_info}\n\nUser: {prompt}"
+            
+            with st.spinner('Thinking...'):
+                response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
+                assistant_response_raw = response.text
+                assistant_response_plain = md.render(assistant_response_raw)
+                st.markdown(assistant_response_plain, unsafe_allow_html=True)
+                text_to_speech_and_play(assistant_response_raw)
+        st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
+        st.rerun()
         
-        with col_mic:
-            st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True) # Adjust vertical alignment
-            recorded_audio = mic_recorder(
-                start_prompt="🎙️", # Only icon
-                stop_prompt="⏹️", # Only icon
-                just_once=True,
-                use_container_width=False, # Let custom CSS handle width
-                key='mic_recorder_chat',
-                # Add a custom class for styling
-                css_class="st-mic-recorder-button" 
-            )
-
-        prompt = None
-        if user_input:
-            prompt = user_input
-        # FIX: Add a check to ensure recorded_audio is not None before using it
-        elif recorded_audio:
-            st.info("Voice input received! A full-featured speech-to-text conversion is not implemented in this prototype, but you can see that the voice data was successfully captured.")
-            prompt = "The user has provided voice input. This is a placeholder for the transcribed text."
-
-        if prompt:
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.markdown(prompt)
-            with st.chat_message("assistant"):
-                persona_prompt = ""
-                if st.session_state.persona == "Friendly":
-                    persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging."
-                elif st.session_state.persona == "Professional":
-                    persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice."
-                
-                budget_data = st.session_state.get('budget', {})
-                budget_info = f"""
-                Here is the user's current budget information:
-                - Monthly Income: {budget_data.get('income', 'N/A')}
-                - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
-                - Rent: {budget_data.get('rent', 'N/A')}
-                - Food: {budget_data.get('food', 'N/A')}
-                - Transport: {budget_data.get('transport', 'N/A')}
-                - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
-                - Extra Info: {budget_data.get('extra_info', 'None provided')}
-                Use this information to answer the user's questions.
-                """
-                full_prompt = f"{persona_prompt}\n\n{budget_info}\n\nUser: {prompt}"
-                
-                with st.spinner('Thinking...'):
-                    response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
-                    assistant_response_raw = response.text
-                    assistant_response_plain = md.render(assistant_response_raw)
-                    st.markdown(assistant_response_plain, unsafe_allow_html=True)
-                    text_to_speech_and_play(assistant_response_raw)
-            st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
-            st.rerun() # Rerun to clear the chat input after submission
-
 def show_budget_page():
     st.title("📝 Budget Details")
     st.markdown("Please provide your financial information below.")
