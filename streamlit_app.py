@@ -108,7 +108,7 @@ st.markdown("""
     }
     .stChatMessage.st-chat-message-user {
         background: #1A314A; /* Slightly different background for user messages */
-        border-left: 3px solid #FF7F9F; /* Different accent for user */
+        border-left: 3s solid #FF7F9F; /* Different accent for user */
     }
 
     /* Styling for the main content block, including chat input and forms */
@@ -243,6 +243,30 @@ st.markdown("""
         margin-bottom: 20px;
         padding-top: 10px;
     }
+
+    /* Custom progress bar container */
+    .progress-container {
+        width: 100%;
+        background-color: #1A314A;
+        border-radius: 10px;
+        height: 25px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    /* Custom progress bar fill */
+    .progress-fill {
+        height: 100%;
+        background-image: linear-gradient(90deg, #64FFDA, #00C49F);
+        border-radius: 10px;
+        transition: width 0.5s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0A192F;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+    
 </style>
 """, unsafe_allow_html=True)
 
@@ -482,13 +506,18 @@ def show_financial_goals_page():
             total_saved = sum(item['amount'] for item in goal['savings_history'])
             goal_amount = goal['goal_amount']
             progress = min(total_saved / goal_amount, 1.0) if goal_amount > 0 else 0.0
-            remaining_amount = max(0, goal_amount - total_saved)
             
-            st.markdown(f"**Total Saved:** ${total_saved:.2f}")
-            st.markdown(f"**Remaining:** ${remaining_amount:.2f}")
-            st.progress(progress)
-            st.markdown(f"**Progress:** {progress * 100:.1f}%")
+            st.markdown(f"**Progress:** {total_saved:.2f} / {goal_amount:.2f}")
 
+            # Custom, styled progress bar
+            progress_percentage = progress * 100
+            st.markdown(f"""
+                <div class="progress-container">
+                    <div class="progress-fill" style="width: {progress_percentage}%;">
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            
             st.markdown("---")
     else:
         st.info("You haven't set any goals yet.")
