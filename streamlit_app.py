@@ -145,11 +145,12 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(255,140,60,0.12);
     }
 
-    /* Form labels & inputs */
+    /* Form labels & inputs - Fixed Label Text */
     .stTextInput > label, .stNumberInput > label, .stDateInput > label, .stForm > label {
         color: #cfeffd;
         font-weight: 600;
         margin-bottom: 6px;
+        white-space: nowrap; /* Prevents labels from wrapping */
     }
     .stTextInput > div > div > input,
     .stTextArea > div > div > textarea,
