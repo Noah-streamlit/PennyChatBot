@@ -808,23 +808,26 @@ if st.session_state.logged_in:
         st.markdown("---")
         if st.button("Log Out", key="sidebar_logout"):
             st.session_state.page = 'logout'
+            st.rerun()
+    
+    init_session_state()
 
-if st.session_state.page == 'welcome':
-    show_welcome_page()
-elif st.session_state.page == 'login':
-    show_login_page()
-elif st.session_state.page == 'signup':
-    show_signup_page()
-elif st.session_state.logged_in and st.session_state.page == 'home':
-    show_home_page()
-elif st.session_state.logged_in and st.session_state.page == 'budget':
-    show_budget_page()
-elif st.session_state.logged_in and st.session_state.page == 'goals':
-    show_financial_goals_page()
-elif st.session_state.logged_in and st.session_state.page == 'graphs':
-    show_graphs_page()
-elif st.session_state.logged_in and st.session_state.page == 'logout':
-    show_log_out_page()
+    if st.session_state.page == 'home':
+        show_home_page()
+    elif st.session_state.page == 'budget':
+        show_budget_page()
+    elif st.session_state.page == 'goals':
+        show_financial_goals_page()
+    elif st.session_state.page == 'graphs':
+        show_graphs_page()
+    elif st.session_state.page == 'logout':
+        show_log_out_page()
+
 else:
-    st.session_state.page = 'welcome'
-    st.rerun()
+    init_session_state()
+    if st.session_state.page == 'login':
+        show_login_page()
+    elif st.session_state.page == 'signup':
+        show_signup_page()
+    else:
+        show_welcome_page()
