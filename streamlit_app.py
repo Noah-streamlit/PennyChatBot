@@ -28,7 +28,7 @@ try:
 except Exception as e:
     st.error(f"Error creating Gemini model: {e}")
 
-# --- Custom CSS for a super-polished Dark Mode theme (visuals ONLY) ---
+# --- Custom CSS for a super-polished Dark Mode theme ---
 st.markdown("""
 <style>
     /* Fonts */
@@ -42,6 +42,20 @@ st.markdown("""
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         letter-spacing: 0.2px;
+    }
+    
+    /* Global word and text styling */
+    p, li, div {
+        font-family: 'Outfit', sans-serif;
+        color: #e6eef3;
+        font-weight: 400;
+        line-height: 1.6;
+        letter-spacing: 0.1px;
+    }
+    
+    strong {
+        color: #e6f3ff;
+        font-weight: 600;
     }
 
     /* Headings - neon gradient */
@@ -277,7 +291,7 @@ st.markdown("""
 
     /* Plotly dark tune ups */
     .plotly-graph-div .main-svg {
-        filter: drop-shadow(0 8px 30px rgba(12,20,55,0.5));
+        filter: drop-shadow(0 0 30px rgba(12,20,55,0.4));
     }
 
     /* Small devices responsiveness */
@@ -313,7 +327,6 @@ st.markdown("""
 md = MarkdownIt()
 
 # --- Page Functions ---
-
 def show_welcome_page():
     st.title("Penny's Budgeting Assistant")
     st.subheader("Your AI-powered peer for smart financial planning.")
