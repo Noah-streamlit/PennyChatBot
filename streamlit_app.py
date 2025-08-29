@@ -515,10 +515,18 @@ def show_home_page():
         <div class="persona-selection-box">
             <p class='persona-selection-label'>Choose Penny's persona:</p>
     """, unsafe_allow_html=True)
+
+    # Validate and set the persona to prevent the ValueError
+    current_persona = st.session_state.get('persona', 'Friendly')
+    persona_options = ("Friendly", "Professional")
+    if current_persona not in persona_options:
+        current_persona = "Friendly"
+        st.session_state.persona = "Friendly"
+        
     persona = st.radio(
         "Choose Penny's persona:",
-        ("Friendly", "Professional"),
-        index=("Friendly", "Professional").index(st.session_state.get('persona', 'Friendly')),
+        persona_options,
+        index=persona_options.index(current_persona),
         horizontal=True,
         label_visibility="collapsed",
         key='persona_selector'
