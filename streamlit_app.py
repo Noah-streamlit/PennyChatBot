@@ -93,6 +93,7 @@ st.markdown("""
         opacity: 0.9;
     }
 
+
     /* Styling for the sidebar */
     .css-1d391kg { /* This is the main sidebar container */
         background-color: #2a2a4a; /* Slightly lighter dark for sidebar */
@@ -371,9 +372,9 @@ def show_home_page():
     
     st.markdown(f"""
         <div class="main-header">
-            <h1>Chat with Penny</h1>
+            <h1 style='font-size: 3em; color: #8edce6; font-weight: 700;'>Hi, I'm Penny.</h1>
         </div>
-        <p style="color: #c0c0c0; margin-bottom: 30px; font-size: 1.1em;">Hello there, **{user_name}**! I'm Penny, your budgeting assistant. How can I help you today?</p>
+        <h3 style="color: #c0c0c0; font-weight: 400; font-size: 1.5em; margin-bottom: 30px;">Hello there, **{user_name}**! How can I help you today?</h3>
     """, unsafe_allow_html=True)
     
     st.markdown("<p style='color: #e0e0e0; font-weight: 500; margin-bottom: 15px;'>Choose Penny's persona:</p>", unsafe_allow_html=True)
