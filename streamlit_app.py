@@ -157,7 +157,24 @@ st.markdown("""
         color: #111 !important;
         box-shadow: 0 6px 20px rgba(255,140,60,0.12);
     }
-
+    .stButton.edit-button > button {
+        background: #1e293b;
+        color: #e6f3ff;
+        border: 1px solid rgba(120,120,160,0.06);
+        box-shadow: none;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        border-radius: 12px;
+    }
+    .stButton.cancel-button > button {
+        background: #1e293b;
+        color: #ff6b6b;
+        border: 1px solid rgba(120,120,160,0.06);
+        box-shadow: none;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        border-radius: 12px;
+    }
     /* Form labels & inputs - Fixed Label Text */
     .stTextInput > label, .stNumberInput > label, .stDateInput > label, .stForm > label {
         color: #cfeffd;
@@ -365,6 +382,12 @@ def init_session_state():
         st.session_state.persona = "Friendly and supportive peer"
     if 'name_set' not in st.session_state:
         st.session_state.name_set = False
+    
+    # New state variables for edit functionality
+    if 'edit_message_index' not in st.session_state:
+        st.session_state.edit_message_index = -1
+    if 'edit_message_content' not in st.session_state:
+        st.session_state.edit_message_content = ""
 
 
 # --- New get_response_from_gemini function with JSON validation and Persona ---
@@ -497,6 +520,12 @@ def show_signup_page():
 def show_home_page():
     user_name = st.session_state.get('user_name', 'User')
     
+    # New state variables for edit functionality
+    if 'edit_message_index' not in st.session_state:
+        st.session_state.edit_message_index = -1
+    if 'edit_message_content' not in st.session_state:
+        st.session_state.edit_message_content = ""
+
     st.markdown(f"""
         <div class="main-header">
             <h1 class='home-title-gradient'>Hi, I'm Penny.</h1>
@@ -531,6 +560,8 @@ def show_home_page():
     # Add a button to clear the chat messages
     if st.button("Clear Chat", key="clear_chat_button", help="Clear all chat messages", type="secondary"):
         st.session_state.messages = []
+        st.session_state.edit_message_index = -1
+        st.session_state.edit_message_content = ""
         st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True) # Add some spacing
@@ -538,13 +569,37 @@ def show_home_page():
     if "messages" not in st.session_state:
         st.session_state.messages = []
     
-    for message in st.session_state.messages:
+    # Display all messages
+    for i, message in enumerate(st.session_state.messages):
         with st.chat_message(message["role"]):
             st.markdown(message["content"], unsafe_allow_html=True)
             
+            # Add an edit button for assistant messages only
+            if message["role"] == "assistant":
+                if st.button("Edit", key=f"edit_button_{i}"):
+                    st.session_state.edit_message_index = i
+                    st.session_state.edit_message_content = message["content"]
+                    st.rerun()
+
     # Input area for chat
-    prompt = st.chat_input("Ask Penny a question...")
-    
+    if st.session_state.edit_message_index == -1:
+        # Normal chat input
+        prompt = st.chat_input("Ask Penny a question...")
+    else:
+        # Edit message input
+        edit_prompt = st.chat_input("Edit message:", value=st.session_state.edit_message_content)
+        if edit_prompt and edit_prompt != st.session_state.edit_message_content:
+            st.session_state.messages[st.session_state.edit_message_index]["content"] = edit_prompt
+            st.session_state.edit_message_index = -1
+            st.session_state.edit_message_content = ""
+            st.rerun()
+        # "Cancel Edit" button
+        if st.button("Cancel Edit", type="secondary"):
+            st.session_state.edit_message_index = -1
+            st.session_state.edit_message_content = ""
+            st.rerun()
+
+    # Handle new chat prompts if not in edit mode
     if prompt:
         # Add the user's message to the chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -789,6 +844,8 @@ if 'page' not in st.session_state:
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
+init_session_state()
+
 if st.session_state.logged_in:
     with st.sidebar:
         st.markdown("<h2 style='text-align:center; color:#e6eef3; border-bottom: none;'>Penny</h2>", unsafe_allow_html=True)
@@ -807,11 +864,20 @@ if st.session_state.logged_in:
             st.rerun()
         st.markdown("---")
         if st.button("Log Out", key="sidebar_logout"):
-            st.session_state.page = 'logout'
+            st.session_state.logged_in = False
+            st.session_state.page = 'welcome'
+            st.success("You have been logged out.")
             st.rerun()
-    
-    init_session_state()
+else:
+    if st.session_state.page == 'login':
+        show_login_page()
+    elif st.session_state.page == 'signup':
+        show_signup_page()
+    else:
+        show_welcome_page()
 
+# --- Page Routing ---
+if st.session_state.logged_in:
     if st.session_state.page == 'home':
         show_home_page()
     elif st.session_state.page == 'budget':
@@ -822,12 +888,3 @@ if st.session_state.logged_in:
         show_graphs_page()
     elif st.session_state.page == 'logout':
         show_log_out_page()
-
-else:
-    init_session_state()
-    if st.session_state.page == 'login':
-        show_login_page()
-    elif st.session_state.page == 'signup':
-        show_signup_page()
-    else:
-        show_welcome_page()
