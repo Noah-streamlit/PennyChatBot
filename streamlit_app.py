@@ -44,7 +44,7 @@ st.markdown("""
 
     /* Styling for headers */
     h1, h2, h3, h4, h5, h6 {
-        color: #8edce6; /* A soft, light blue accent for headers */
+        color: #8edce6; /* A soft, light blue accent for headers - will be overridden by .home-title-gradient for H1 on home */
         font-family: 'Outfit', sans-serif;
         font-weight: 600;
         text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
@@ -317,6 +317,33 @@ st.markdown("""
         text-align: center;
         width: 100%;
     }
+
+    /* --- Specific Styling for Home Page Text --- */
+    .home-title-gradient {
+        font-size: 3.5em; /* Larger, more prominent */
+        font-weight: 700;
+        background: linear-gradient(90deg, #fc5c7d, #6a82fb); /* Gradient matching sidebar buttons */
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 15px; /* Adjust spacing */
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.4); /* More pronounced shadow */
+    }
+
+    .home-greeting-text {
+        font-size: 1.6em; /* Slightly larger for emphasis */
+        font-weight: 500; /* Medium weight */
+        color: #e0e0e0; /* Light text for readability */
+        margin-bottom: 40px; /* More space below greeting */
+        line-height: 1.4; /* Better line spacing */
+    }
+
+    .persona-selection-label {
+        color: #8edce6; /* Use a bright accent color for this label */
+        font-weight: 600; /* Bolder */
+        font-size: 1.15em; /* Slightly larger */
+        margin-bottom: 20px; /* Space above radio buttons */
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -372,12 +399,12 @@ def show_home_page():
     
     st.markdown(f"""
         <div class="main-header">
-            <h1 style='font-size: 3em; color: #8edce6; font-weight: 700;'>Hi, I'm Penny.</h1>
+            <h1 class='home-title-gradient'>Hi, I'm Penny.</h1>
         </div>
-        <h3 style="color: #c0c0c0; font-weight: 400; font-size: 1.5em; margin-bottom: 30px;">Hello there, **{user_name}**! How can I help you today?</h3>
+        <p class='home-greeting-text'>Hello there, **{user_name}**! How can I help you today?</p>
     """, unsafe_allow_html=True)
     
-    st.markdown("<p style='color: #e0e0e0; font-weight: 500; margin-bottom: 15px;'>Choose Penny's persona:</p>", unsafe_allow_html=True)
+    st.markdown("<p class='persona-selection-label'>Choose Penny's persona:</p>", unsafe_allow_html=True)
     persona = st.radio(
         "Choose Penny's persona:",
         ("Friendly", "Professional"),
