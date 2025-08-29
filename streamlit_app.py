@@ -366,6 +366,7 @@ def init_session_state():
     if 'name_set' not in st.session_state:
         st.session_state.name_set = False
 
+
 # --- New get_response_from_gemini function with JSON validation ---
 def get_response_from_gemini(prompt):
     full_prompt = f"""
@@ -410,10 +411,23 @@ def get_response_from_gemini(prompt):
     
     try:
         response = model.generate_content(full_prompt)
-        json_response = json.loads(response.text)
+        raw_text = response.text.strip()
+        
+        # New robust JSON parsing logic
+        start_index = raw_text.find('{')
+        end_index = raw_text.rfind('}')
+        
+        if start_index == -1 or end_index == -1:
+            raise json.JSONDecodeError("JSON object not found in response.", raw_text, 0)
+        
+        json_string = raw_text[start_index:end_index + 1]
+        json_response = json.loads(json_string)
+        
         return json_response
-    except json.JSONDecodeError:
-        st.warning("The AI did not follow the format. Retrying with a more direct prompt.")
+    
+    except json.JSONDecodeError as e:
+        st.warning(f"Error parsing JSON. Raw response: {raw_text}")
+        st.warning(f"Error details: {e}")
         # This fallback is a good safety measure but the primary fix is to improve the main prompt
         simple_prompt = f"""
         User said: "{prompt}"
