@@ -551,16 +551,33 @@ def show_graphs_page():
             'Transport': budget_data.get('transport', 0),
             'Liabilities': budget_data.get('liabilities', 0)
         }
-        
+
         total_expenses = sum(expenses.values())
         income = budget_data.get('income', 0)
-        
-        if income > total_expenses:
-            expenses['Remaining Balance'] = income - total_expenses
-        
+
+        # Calculate remaining balance
+        remaining_balance = income - total_expenses
+        if remaining_balance > 0:
+            expenses['Remaining Balance'] = remaining_balance
+
         df = pd.DataFrame(list(expenses.items()), columns=['Category', 'Amount'])
         
-        fig = px.pie(df, values='Amount', names='Category', title='Distribution of Monthly Finances')
+        # Define a custom color sequence that matches the app's theme
+        custom_colors = ['#64FFDA', '#FF7F9F', '#304169', '#FFDB58', '#4285F4']
+
+        # Create the pie chart with a dark theme and custom colors
+        fig = px.pie(
+            df, 
+            values='Amount', 
+            names='Category', 
+            title='Distribution of Monthly Finances',
+            color_discrete_sequence=custom_colors,
+            template="plotly_dark"  # Apply the dark theme
+        )
+        
+        # Center the title for better aesthetics on the dark theme
+        fig.update_layout(title_x=0.5)
+        
         st.plotly_chart(fig)
     else:
         st.info("Please fill out the Budget page to see your graphs.")
