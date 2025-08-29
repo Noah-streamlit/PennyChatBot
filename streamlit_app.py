@@ -171,12 +171,18 @@ st.markdown("""
         transform: translateY(-1px);
     }
 
-    /* Chat bubbles */
+    /* ===== Chat Bubbles (Fixed width issue) ===== */
     .stChatMessage {
-        background: linear-gradient(180deg, rgba(28,31,45,0.85), rgba(25,28,38,0.9));
-        border-radius: 16px;
-        padding: 16px 18px;
-        margin-bottom: 14px;
+        display: inline-block;
+        max-width: 95%; /* wider so text doesn’t break too early */
+        width: fit-content;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border-radius: 20px;
+        font-size: 16px;
+        line-height: 1.5;
+        word-wrap: break-word; /* ensures super long words still break */
+        white-space: pre-wrap; /* preserves line breaks */
         box-shadow: 0 8px 28px rgba(3,6,23,0.45);
         border: 1px solid rgba(255,255,255,0.02);
     }
@@ -186,7 +192,7 @@ st.markdown("""
     }
     .stChatMessage.st-chat-message-user {
         background: linear-gradient(135deg, rgba(124,77,255,0.95), rgba(68,138,255,0.95));
-        color: #0b1020;
+        color: #f1fbff;
         text-align: right;
         margin-left: 18%;
         border-radius: 20px 20px 4px 20px;
