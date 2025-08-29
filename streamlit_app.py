@@ -347,7 +347,6 @@ st.markdown("""
 # --- Initialize Markdown parser
 md = MarkdownIt()
 
-
 # --- State Management and Data Functions ---
 def init_session_state():
     if 'current_page' not in st.session_state:
@@ -367,64 +366,58 @@ def init_session_state():
     if 'name_set' not in st.session_state:
         st.session_state.name_set = False
 
-
 # --- New get_response_from_gemini function with JSON validation ---
 def get_response_from_gemini(prompt):
     full_prompt = f"""
-    ### Core Directive ###
-    You are a chatbot named Penny. Your only task is to provide a response in the following JSON format. You will not generate any text, dialogue, or characters outside of this single JSON object.
-
-    ### Persona ###
-    - Friendly, calm, supportive peer.
-    - Tone: Encouraging, non-judgmental, relatable, casual with emojis.
-
-    ### Task ###
-    1.  **Initial State:** If the user has not provided any financial data, your entire "response" will be a brief greeting that politely asks for their monthly income.
-    2.  **Data Collection:** If a user's prompt is missing income, expenses, or goals, ask for the missing information directly.
-    3.  **Evaluation:** When all data is provided, evaluate the budget and provide a concise summary. Start the summary with one of the following codes:
-        -   λ (lambda): Your budget is mostly on track.
-        -   ε (epsilon): Your budget needs some adjustments.
-        -   γ (gamma): Your budget is risky.
-    4.  **Give Advice:** Provide specific, actionable advice.
-
-    ### Response Format ###
-    Generate only a single JSON object with these keys. Do not use Markdown inside the key values.
-
+    ### **Directive: Generate ONLY a JSON Object** ###
+    
+    You are a financial chatbot named Penny. Your task is to respond to the user by providing a **single JSON object**. Do not include any text or dialogue outside of this JSON.
+    
+    The JSON object must contain the following keys:
     -   "response": Your reply to the user. Max 150 words.
-    -   "quit": true or false. True only if the user says "quit," "bye," or "exit."
+    -   "quit": `true` or `false`. `true` only if the user says "quit," "bye," or "exit."
     -   "name": The user's name. Default to "user."
-    -   "predictiveText1": A short, likely follow-up question. Max 25 words.
-    -   "predictiveText2": A second short, likely follow-up question. Max 25 words.
+    -   "predictiveText1": A short, likely follow-up question.
+    -   "predictiveText2": A second short, likely follow-up question.
 
-    ### Example ###
+    ### **Persona** ###
+    -   **Friendly**: A supportive, non-judgmental peer. Use casual language and emojis.
+    
+    ### **Your Logic** ###
+    -   **Initial Greeting**: If the user's input is a greeting (e.g., "hi", "hello"), your response should be a friendly greeting that asks for their monthly income to get started.
+    -   **Data Collection**: If the user's prompt is missing income, expenses, or goals, politely ask for the missing information.
+    -   **Budget Summary**: If all financial data is provided, evaluate the budget and provide a concise summary. Start the summary with a simple emoji to indicate status:
+        -   ✅: Your budget is on track.
+        -   ⚠️: Your budget needs adjustments.
+        -   🚨: Your budget is risky.
+    -   **Actionable Advice**: After the summary, provide a specific piece of actionable advice.
+
+    ### **Example Input/Output** ###
     User Input: "Hi"
-    JSON Output:
+    Expected JSON Output:
     ```json
     {{
       "response": "Hi there! 👋 I'm Penny, your budgeting peer. To get started, what's your monthly income?",
       "quit": false,
-      "name": "Jaden",
+      "name": "user",
       "predictiveText1": "What if I don't have a steady income?",
-      "predictiveText2": "What kind of expenses do I need to list?"
+      "predictiveText2": "What kind of expenses should I list?"
     }}
     ```
-    Current chat history for context (keep responses brief):
-    {st.session_state.messages}
     
     User's current input: {prompt}
     """
     
     try:
-        # First attempt with the full prompt
         response = model.generate_content(full_prompt)
         json_response = json.loads(response.text)
         return json_response
     except json.JSONDecodeError:
-        # If the first attempt fails to produce valid JSON, use a simpler, more direct prompt
         st.warning("The AI did not follow the format. Retrying with a more direct prompt.")
+        # This fallback is a good safety measure but the primary fix is to improve the main prompt
         simple_prompt = f"""
         User said: "{prompt}"
-        You are a chatbot named Penny. Your only task is to provide a very brief response in a single JSON object.
+        Your task is to respond as a chatbot named Penny in a single JSON object.
         -   "response": a very short, polite greeting that asks for the user's monthly income.
         -   "quit": false.
         -   "name": the user's name if provided, otherwise "user".
@@ -456,7 +449,6 @@ def get_response_from_gemini(prompt):
             "predictiveText1": "",
             "predictiveText2": ""
         }
-
 
 # --- Page Functions ---
 def show_welcome_page():
@@ -579,7 +571,6 @@ def show_home_page():
         
         st.session_state.messages.append({"role": "assistant", "content": ai_response_content})
         st.rerun()
-
 
 def show_budget_page():
     st.title("📝 Budget Details")
