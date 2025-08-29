@@ -28,26 +28,33 @@ try:
 except Exception as e:
     st.error(f"Error creating Gemini model: {e}")
 
-# --- Custom CSS for a Dark Mode theme (App-Store Level) ---
+# --- Custom CSS for a Dark Mode theme with rounded, gradient elements ---
 st.markdown("""
 <style>
+    /* Import a modern font - using Google Fonts for 'Outfit' */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
     /* General styling for the main app container and body */
     .stApp {
-        background-color: #0A192F; /* Deep navy background, modern and sleek */
-        color: #F0F0F0; /* Off-white for general text */
-        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: #1a1a2e; /* Dark navy background */
+        color: #e0e0e0; /* Light gray for general text */
+        font-family: 'Outfit', sans-serif;
+        font-weight: 400;
     }
 
     /* Styling for headers */
     h1, h2, h3, h4, h5, h6 {
-        color: #64FFDA; /* Mint green for headers, a modern accent */
-        font-family: 'Segoe UI', Arial, sans-serif;
-        font-weight: 700;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        border-bottom: 2px solid #1A314A; /* Subtle separator */
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+        color: #8edce6; /* A soft, light blue accent for headers */
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        border-bottom: 1px solid #2e2e42; /* Subtler separator */
+        padding-bottom: 15px;
+        margin-bottom: 25px;
     }
+    h1 { font-size: 2.5em; font-weight: 700; }
+    h2 { font-size: 2em; font-weight: 600; }
+    h3 { font-size: 1.7em; font-weight: 500; }
 
     /* Styling for various input labels */
     .stRadio > label,
@@ -55,187 +62,210 @@ st.markdown("""
     .stNumberInput > label,
     .stDateInput > label,
     .stForm > label {
-        color: #F0F0F0;
-        font-weight: bold;
+        color: #e0e0e0;
+        font-weight: 500;
+        margin-bottom: 8px; /* Add some space below labels */
     }
     
     /* Styling for buttons */
     .stButton > button {
-        background-color: #263353; /* A soft, dark purple for buttons */
-        color: #F0F0F0 !important;
-        border: 2px solid #304169;
-        border-radius: 12px;
-        padding: 10px 25px;
+        background: linear-gradient(135deg, #6a82fb, #fc5c7d); /* Gradient for buttons */
+        color: white !important;
+        border: none;
+        border-radius: 25px; /* More rounded, oval-like */
+        padding: 12px 30px;
         font-weight: 600;
-        transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        font-size: 1em;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
     }
     .stButton > button:hover {
-        background-color: #304169; /* Lighter shade on hover */
-        border-color: #64FFDA; /* Mint green border on hover */
-        color: white !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(100, 255, 218, 0.15); /* Subtle glow */
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        opacity: 0.9;
     }
     .stButton.clear-button > button {
-        background-color: #FF7F9F; /* Pinkish-red for reset/clear buttons */
-        color: #0A192F !important;
-        border: 2px solid #FF7F9F;
+        background: linear-gradient(135deg, #ff6b6b, #ee9b00); /* Different gradient for clear button */
+        color: white !important;
     }
     .stButton.clear-button > button:hover {
-        background-color: #FF9FAF;
-        border-color: #FF9FAF;
-        color: #0A192F !important;
+        opacity: 0.9;
     }
-
 
     /* Styling for the sidebar */
-    .css-1d391kg {
-        background-color: #0B213A; /* Slightly darker shade for sidebar */
-        border-right: 1px solid #1A314A;
+    .css-1d391kg { /* This is the main sidebar container */
+        background-color: #2a2a4a; /* Slightly lighter dark for sidebar */
+        border-right: 1px solid #3e3e5e;
         padding-top: 2rem;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.4);
+        border-radius: 0 15px 15px 0; /* Rounded right side for a modern touch */
     }
-    .css-1d391kg .stButton > button {
-        background-color: #64FFDA; /* Accent color for sidebar buttons */
-        color: #0A192F !important;
-        border-color: #64FFDA;
-        width: 100%;
-        margin-bottom: 10px;
+    .css-1d391kg .stButton > button { /* Sidebar buttons */
+        background: linear-gradient(135deg, #a18cd1, #fbc2eb); /* Pastel gradient for sidebar buttons */
+        color: #1a1a2e !important; /* Dark text on light button */
+        border-color: transparent;
+        width: 90%; /* Adjust width for spacing */
+        margin: 5px auto; /* Center buttons with auto margin */
+        display: block; /* Ensures margin auto works */
+        border-radius: 20px; /* More rounded */
+        font-weight: 500;
     }
     .css-1d391kg .stButton > button:hover {
-        background-color: #79FDD4;
-        border-color: #79FDD4;
+        background: linear-gradient(135deg, #b09ee0, #fcd8f2); /* Slightly brighter hover */
+        transform: translateY(-1px);
     }
+    /* Active sidebar button styling */
+    .css-1d391kg .stButton > button[aria-selected="true"] {
+        background: linear-gradient(135deg, #fc5c7d, #6a82fb); /* Stronger accent for active */
+        color: white !important;
+    }
+
 
     /* Styling for chat messages */
     .stChatMessage {
-        background: #12243D; /* Subtle background for depth */
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 12px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        border-left: 3px solid #64FFDA; /* Accent border */
+        background: #2e2e42; /* Darker background for chat bubbles */
+        border-radius: 20px; /* Very rounded, oval-like */
+        padding: 18px 22px; /* More padding */
+        margin-bottom: 15px; /* More space between messages */
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        border: none; /* Remove default border */
+        color: #e0e0e0;
+        font-size: 1.05em;
     }
     .stChatMessage.st-chat-message-user {
-        background: #1A314A; /* Slightly different background for user messages */
-        border-left: 3s solid #FF7F9F; /* Different accent for user */
+        background: linear-gradient(135deg, #7c4dff, #448aff); /* Gradient for user messages */
+        color: white;
+        text-align: right; /* Align user messages to the right */
+        margin-left: auto; /* Push user message to the right */
+        border-radius: 20px 20px 5px 20px; /* Slightly different corner for tail */
     }
+    .stChatMessage.st-chat-message-assistant {
+        background: linear-gradient(135deg, #1e3a8a, #0c4a6e); /* Gradient for assistant messages */
+        color: #e0e0e0;
+        text-align: left; /* Align assistant messages to the left */
+        margin-right: auto; /* Push assistant message to the left */
+        border-radius: 20px 20px 20px 5px; /* Slightly different corner for tail */
+    }
+
 
     /* Styling for the main content block, including chat input and forms */
     .st-emotion-cache-1c7v05w, .stForm {
-        background-color: #12243D;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        border: 1px solid #1A314A;
+        background-color: #1a1a2e; /* Match app background */
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        border: 1px solid #2e2e42;
+        margin-bottom: 30px; /* Add space below forms/blocks */
     }
     
     /* Text input fields */
-    .stTextInput > div > div > input, .stTextArea > div > div > textarea {
-        background-color: #0B213A; /* Darker input fields */
-        color: #F0F0F0;
-        border: 1px solid #1A314A;
-        border-radius: 8px;
-        padding: 10px;
-        transition: border-color 0.3s ease;
+    .stTextInput > div > div > input, .stTextArea > div > div > textarea, .stNumberInput > div > div > input {
+        background-color: #2e2e42; /* Darker input fields */
+        color: #e0e0e0;
+        border: 1px solid #3e3e5e;
+        border-radius: 10px; /* Rounded corners */
+        padding: 12px 15px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        font-size: 1.05em;
     }
-    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-        border-color: #64FFDA;
-        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
+    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus, .stNumberInput > div > div > input:focus {
+        border-color: #8edce6; /* Accent color on focus */
+        box-shadow: 0 0 0 0.15rem rgba(142, 220, 230, 0.4); /* Subtle glow */
+        outline: none; /* Remove default outline */
     }
     
     /* Chat input container styling - for the main chat input at the bottom */
     .st-emotion-cache-1g85z9l { /* This targets the overall chat input container */
-        background-color: #12243D; /* Match main content block */
-        border-radius: 12px;
-        padding: 8px;
-        border: 1px solid #1A314A;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        display: flex; /* Enable flexbox for alignment of input and button */
+        background-color: #2e2e42; /* Match content blocks */
+        border-radius: 30px; /* Very rounded */
+        padding: 10px 15px;
+        border: 1px solid #3e3e5e;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        display: flex;
         align-items: center;
-        gap: 10px; /* Space between input and button */
+        gap: 10px;
+        margin-top: 30px; /* Space above chat input */
     }
     .st-emotion-cache-1g85z9l input { /* This targets the actual text input within the chat input container */
-        background-color: #0B213A; /* Darker input field */
-        color: #F0F0F0;
-        border: 1px solid #1A314A;
-        border-radius: 8px;
-        padding: 10px;
-        flex-grow: 1; /* Allow input to take available space */
+        background-color: transparent; /* Transparent background */
+        color: #e0e0e0;
+        border: none; /* Remove border */
+        padding: 10px 15px;
+        flex-grow: 1;
+        font-size: 1.1em;
+        outline: none; /* Remove outline */
     }
-    .st-emotion-cache-1g85z9l input:focus {
-        border-color: #64FFDA;
-        box-shadow: 0 0 0 0.1rem rgba(100, 255, 218, 0.5);
-    }
-    /* Style for the send button within the chat input */
-    .st-emotion-cache-1g85z9l button {
-        background-color: #64FFDA; /* Mint green send button */
-        color: #0A192F !important;
-        border-radius: 8px;
-        padding: 8px 15px;
+    .st-emotion-cache-1g85z9l button { /* Send button within chat input */
+        background: linear-gradient(45deg, #8edce6, #a18cd1); /* Soft gradient for send button */
+        color: #1a1a2e !important;
+        border-radius: 25px; /* Oval shape */
+        padding: 10px 20px;
         font-weight: 600;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+        transition: all 0.3s ease;
     }
     .st-emotion-cache-1g85z9l button:hover {
-        background-color: #79FDD4;
-        transform: translateY(-1px);
+        transform: scale(1.05);
+        box-shadow: 0 4px 10px rgba(142, 220, 230, 0.3);
     }
     
     /* Info and Error messages */
     .stAlert {
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        border: none; /* Remove default border */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        font-size: 1em;
     }
     .stAlert.st-success {
-        background-color: #D4EDDA;
-        color: #155724;
-        border-color: #C3E6CB;
+        background-color: #4CAF50; /* Green */
+        color: white;
     }
     .stAlert.st-error {
-        background-color: #F8D7DA;
-        color: #721C24;
-        border-color: #F5C6CB;
+        background-color: #f44336; /* Red */
+        color: white;
     }
     .stAlert.st-info {
-        background-color: #D1ECF1;
-        color: #0C5460;
-        border-color: #BEE5EB;
+        background-color: #2196F3; /* Blue */
+        color: white;
     }
 
     /* Icon adjustments for better visibility */
     .stChatMessage .st-emotion-cache-1wmy06w img {
-        border: 2px solid #64FFDA;
+        border: 2px solid #8edce6; /* Accent border for assistant icon */
+        border-radius: 50%; /* Make icons circular */
     }
     .stChatMessage.st-chat-message-user .st-emotion-cache-1wmy06w img {
-        border: 2px solid #FF7F9F;
+        border: 2px solid #fc5c7d; /* Different accent for user icon */
     }
 
     /* Persona selection as segmented control */
     .stRadio > div[role="radiogroup"] {
         display: flex;
-        justify-content: flex-start; /* Align to start */
-        margin-bottom: 20px;
+        justify-content: flex-start;
+        margin-bottom: 25px;
+        gap: 15px; /* Space between radio options */
     }
     .stRadio [data-baseweb="radio"] {
-        margin-right: 10px; /* Space between buttons */
+        margin-right: 0px; /* Remove default margin */
     }
     .stRadio [data-baseweb="radio"] label {
-        background-color: #1A314A; /* Darker background for segments */
-        border: 1px solid #304169;
-        border-radius: 8px;
-        padding: 8px 15px;
-        color: #F0F0F0;
+        background: linear-gradient(135deg, #3e3e5e, #2e2e42); /* Subtle dark gradient */
+        border: 1px solid #5e5e7e;
+        border-radius: 20px; /* Very rounded */
+        padding: 10px 20px;
+        color: #c0c0c0;
         font-weight: 500;
-        transition: background-color 0.3s ease, border-color 0.3s ease;
+        transition: all 0.3s ease;
         cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .stRadio [data-baseweb="radio"][aria-checked="true"] label {
-        background-color: #64FFDA; /* Accent color when selected */
-        border-color: #64FFDA;
-        color: #0A192F; /* Dark text on accent */
+        background: linear-gradient(135deg, #a18cd1, #fc5c7d); /* Vibrant gradient when selected */
+        border-color: #fc5c7d;
+        color: white; /* White text on vibrant background */
+        box-shadow: 0 4px 10px rgba(161, 140, 209, 0.4);
     }
     
     /* Hide the default radio button dot for a cleaner segmented look */
@@ -250,32 +280,41 @@ st.markdown("""
     .main-header {
         display: flex;
         align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-        padding-top: 10px;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding-top: 15px;
+        border-bottom: none; /* Remove double border */
     }
 
     /* Custom progress bar container */
     .progress-container {
         width: 100%;
-        background-color: #1A314A;
-        border-radius: 10px;
-        height: 25px;
+        background-color: #2e2e42;
+        border-radius: 15px; /* Rounded progress bar */
+        height: 30px; /* Taller progress bar */
         overflow: hidden;
-        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+        margin-top: 10px;
     }
     /* Custom progress bar fill */
     .progress-fill {
         height: 100%;
-        background-image: linear-gradient(90deg, #64FFDA, #00C49F);
-        border-radius: 10px;
+        background-image: linear-gradient(90deg, #8edce6, #6a82fb); /* Gradient fill */
+        border-radius: 15px;
         transition: width 0.5s ease-in-out;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #0A192F;
-        font-weight: bold;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        color: #1a1a2e; /* Dark text on light gradient */
+        font-weight: 600;
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.2);
+        font-size: 0.95em;
+        white-space: nowrap; /* Prevent text wrapping */
+        padding: 0 10px; /* Padding for text inside bar */
+    }
+    .progress-fill span {
+        text-align: center;
+        width: 100%;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -288,19 +327,21 @@ md = MarkdownIt()
 def show_welcome_page():
     st.title("Penny's Budgeting Assistant")
     st.subheader("Your AI-powered peer for smart financial planning.")
+    st.markdown("---")
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Login"):
+        if st.button("Login", key="welcome_login"):
             st.session_state.page = 'login'
             st.rerun()
     with col2:
-        if st.button("Sign Up"):
+        if st.button("Sign Up", key="welcome_signup"):
             st.session_state.page = 'signup'
             st.rerun()
 
 def show_login_page():
     st.title("Login to Your Account")
     st.info("This is a simplified prototype. Just enter a name and email to 'log in'.")
+    st.markdown("---")
     with st.form("login_form"):
         user_name = st.text_input("First Name:")
         email = st.text_input("Email Address")
@@ -311,7 +352,7 @@ def show_login_page():
             if email and user_name:
                 st.session_state.logged_in = True
                 st.session_state.user_id = email
-                st.session_state.user_name = user_name
+                st.session_state.user_name = user_name # Store user's first name
                 st.session_state.page = 'home'
                 st.rerun()
             else:
@@ -320,22 +361,22 @@ def show_login_page():
 def show_signup_page():
     st.title("Create Your Account")
     st.info("This feature is currently disabled. Please use the login page to proceed.")
-    if st.button("Go to Login"):
+    st.markdown("---")
+    if st.button("Go to Login", key="signup_to_login"):
         st.session_state.page = 'login'
         st.rerun()
         
 def show_home_page():
     user_name = st.session_state.get('user_name', 'User')
-    # Header without the logo
+    
     st.markdown(f"""
         <div class="main-header">
             <h1>Chat with Penny</h1>
         </div>
-        <p style="color: #A0AABA; margin-bottom: 30px;">Hello there, **{user_name}**! I'm Penny, your budgeting assistant. How can I help you today?</p>
+        <p style="color: #c0c0c0; margin-bottom: 30px; font-size: 1.1em;">Hello there, **{user_name}**! I'm Penny, your budgeting assistant. How can I help you today?</p>
     """, unsafe_allow_html=True)
     
-    # Persona selection as a segmented control (custom CSS handles appearance)
-    st.markdown("<p style='color: #F0F0F0; font-weight: bold;'>Choose Penny's persona:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #e0e0e0; font-weight: 500; margin-bottom: 15px;'>Choose Penny's persona:</p>", unsafe_allow_html=True)
     persona = st.radio(
         "Choose Penny's persona:",
         ("Friendly", "Professional"),
@@ -346,11 +387,13 @@ def show_home_page():
     )
     st.session_state.persona = persona
     
+    st.markdown("---")
     # Add a button to clear the chat messages
-    if st.button("Clear Chat", key="clear_chat_button", help="Clear all chat messages"):
+    if st.button("Clear Chat", key="clear_chat_button", help="Clear all chat messages", type="secondary"):
         st.session_state.messages = []
         st.rerun()
 
+    st.markdown("<br>", unsafe_allow_html=True) # Add some spacing
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -371,7 +414,7 @@ def show_home_page():
         
         # Display a thinking message while waiting for the response
         with st.chat_message("assistant"):
-            with st.spinner('Thinking...'):
+            with st.spinner('Penny is thinking...'):
                 persona_prompt = ""
                 if st.session_state.persona == "Friendly":
                     persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging. Address the user by their name."
@@ -529,7 +572,8 @@ def show_financial_goals_page():
             progress_percentage = progress * 100
             st.markdown(f"""
                 <div class="progress-container">
-                    <div class="progress-fill" style="width: {progress_percentage}%;">
+                    <div class="progress-fill" style="width: {progress_percentage:.1f}%;">
+                        <span>{progress_percentage:.1f}%</span>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -559,11 +603,16 @@ def show_graphs_page():
         remaining_balance = income - total_expenses
         if remaining_balance > 0:
             expenses['Remaining Balance'] = remaining_balance
+        else:
+            expenses['Over budget'] = abs(remaining_balance) # Show negative balance as "Over budget"
+
 
         df = pd.DataFrame(list(expenses.items()), columns=['Category', 'Amount'])
         
         # Define a custom color sequence that matches the app's theme
-        custom_colors = ['#64FFDA', '#FF7F9F', '#304169', '#FFDB58', '#4285F4']
+        # More vibrant, soft pastel gradients
+        custom_colors = ['#FC5C7D', '#6A82FB', '#FFCDD2', '#8EDCE6', '#FBC2EB', '#A18CD1', '#FF7F9F', '#7C4DFF']
+
 
         # Create the pie chart with a dark theme and custom colors
         fig = px.pie(
@@ -576,16 +625,29 @@ def show_graphs_page():
         )
         
         # Center the title for better aesthetics on the dark theme
-        fig.update_layout(title_x=0.5)
+        fig.update_layout(
+            title_x=0.5,
+            title_font_size=24,
+            title_font_color='#e0e0e0',
+            legend_title_font_color='#e0e0e0',
+            legend_font_color='#e0e0e0',
+            paper_bgcolor='rgba(0,0,0,0)', # Transparent background for the plot area
+            plot_bgcolor='rgba(0,0,0,0)', # Transparent background for the chart itself
+            margin=dict(l=20, r=20, t=60, b=20) # Adjust margins
+        )
         
-        st.plotly_chart(fig)
+        # Update trace for text color on slices for better contrast
+        fig.update_traces(textinfo='percent+label', marker=dict(line=dict(color='#1a1a2e', width=1)))
+        
+        st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Please fill out the Budget page to see your graphs.")
 
 def show_log_out_page():
     st.title("Log Out")
     st.markdown("Are you sure you want to log out?")
-    if st.button("Log Out"):
+    st.markdown("---")
+    if st.button("Log Out", key="logout_button"):
         st.session_state.clear()
         st.success("You have been logged out successfully.")
         st.info("Redirecting to the welcome page...")
@@ -601,20 +663,22 @@ if 'logged_in' not in st.session_state:
 
 if st.session_state.logged_in:
     with st.sidebar:
+        st.markdown("<h2 style='text-align:center; color:#e0e0e0; border-bottom: none;'>Penny</h2>", unsafe_allow_html=True)
         st.markdown("---")
-        if st.button("Home"):
+        if st.button("Home", key="sidebar_home"):
             st.session_state.page = 'home'
             st.rerun()
-        if st.button("Budget"):
+        if st.button("Budget", key="sidebar_budget"):
             st.session_state.page = 'budget'
             st.rerun()
-        if st.button("Financial Goals"):
+        if st.button("Financial Goals", key="sidebar_goals"):
             st.session_state.page = 'goals'
             st.rerun()
-        if st.button("Graphs"):
+        if st.button("Graphs", key="sidebar_graphs"):
             st.session_state.page = 'graphs'
             st.rerun()
-        if st.button("Log Out"):
+        st.markdown("---")
+        if st.button("Log Out", key="sidebar_logout"):
             st.session_state.page = 'logout'
 
 if st.session_state.page == 'welcome':
