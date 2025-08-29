@@ -8,7 +8,6 @@ import os
 from dotenv import load_dotenv
 import json
 from markdown_it import MarkdownIt
-import time
 import datetime
 
 # --- Gemini AI Setup ---
@@ -507,6 +506,7 @@ def show_home_page():
     st.markdown(f"""
         <div class="persona-selection-box">
             <p class='persona-selection-label'>Choose Penny's persona:</p>
+        </div>
     """, unsafe_allow_html=True)
 
     # Validate and set the persona to prevent the ValueError
@@ -525,9 +525,7 @@ def show_home_page():
         key='persona_selector'
     )
     st.session_state.persona = persona
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    st.markdown("---")
+
     # Add a button to clear the chat messages
     if st.button("Clear Chat", key="clear_chat_button", help="Clear all chat messages", type="secondary"):
         st.session_state.messages = []
@@ -569,9 +567,10 @@ def show_home_page():
 
                 ai_response_content = ai_response_json.get("response", "I'm sorry, I couldn't generate a response.")
                 st.markdown(ai_response_content)
+                st.session_state.messages.append({"role": "assistant", "content": ai_response_content})
         
-        st.session_state.messages.append({"role": "assistant", "content": ai_response_content})
-        st.rerun()
+        # No st.rerun() needed here. Streamlit will automatically rerun the script from the top
+        # when a chat input is received, and the new message will be in st.session_state.messages.
 
 def show_budget_page():
     st.title("📝 Budget Details")
@@ -779,7 +778,6 @@ def show_log_out_page():
         st.session_state.clear()
         st.success("You have been logged out successfully.")
         st.info("Redirecting to the welcome page...")
-        time.sleep(1)
         st.rerun()
 
 # --- Main App Logic ---
@@ -809,8 +807,6 @@ if st.session_state.logged_in:
         if st.button("Log Out", key="sidebar_logout"):
             st.session_state.page = 'logout'
             st.rerun()
-    
-    init_session_state()
 
     if st.session_state.page == 'home':
         show_home_page()
@@ -822,9 +818,7 @@ if st.session_state.logged_in:
         show_graphs_page()
     elif st.session_state.page == 'logout':
         show_log_out_page()
-
 else:
-    init_session_state()
     if st.session_state.page == 'login':
         show_login_page()
     elif st.session_state.page == 'signup':
