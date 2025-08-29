@@ -77,6 +77,17 @@ st.markdown("""
         transform: translateY(-2px);
         box-shadow: 0 6px 15px rgba(100, 255, 218, 0.15); /* Subtle glow */
     }
+    .stButton.clear-button > button {
+        background-color: #FF7F9F; /* Pinkish-red for reset/clear buttons */
+        color: #0A192F !important;
+        border: 2px solid #FF7F9F;
+    }
+    .stButton.clear-button > button:hover {
+        background-color: #FF9FAF;
+        border-color: #FF9FAF;
+        color: #0A192F !important;
+    }
+
 
     /* Styling for the sidebar */
     .css-1d391kg {
@@ -266,7 +277,6 @@ st.markdown("""
         font-weight: bold;
         text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     }
-    
 </style>
 """, unsafe_allow_html=True)
 
@@ -335,6 +345,12 @@ def show_home_page():
         key='persona_selector'
     )
     st.session_state.persona = persona
+    
+    # Add a button to clear the chat messages
+    if st.button("Clear Chat", key="clear_chat_button", help="Clear all chat messages"):
+        st.session_state.messages = []
+        st.rerun()
+
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
