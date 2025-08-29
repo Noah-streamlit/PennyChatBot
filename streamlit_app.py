@@ -28,322 +28,284 @@ try:
 except Exception as e:
     st.error(f"Error creating Gemini model: {e}")
 
-# --- Custom CSS for a Dark Mode theme with rounded, gradient elements ---
+# --- Custom CSS for a super-polished Dark Mode theme (visuals ONLY) ---
 st.markdown("""
 <style>
-    /* Import a modern font - using Google Fonts for 'Outfit' */
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+    /* Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap');
 
-    /* General styling for the main app container and body */
-    .stApp {
-        background-color: #1a1a2e; /* Dark navy background */
-        color: #e0e0e0; /* Light gray for general text */
-        font-family: 'Outfit', sans-serif;
-        font-weight: 400;
+    /* App background and global text */
+    .stApp, body {
+        background: radial-gradient(1200px 600px at 10% 10%, #0b1220 0%, rgba(11,18,32,0.9) 20%, #0f1724 60%, #111827 100%);
+        color: #e6eef3;
+        font-family: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        letter-spacing: 0.2px;
     }
 
-    /* Styling for headers */
+    /* Headings - neon gradient */
     h1, h2, h3, h4, h5, h6 {
-        color: #8edce6; /* A soft, light blue accent for headers - will be overridden by .home-title-gradient for H1 on home */
-        font-family: 'Outfit', sans-serif;
-        font-weight: 600;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        border-bottom: 1px solid #2e2e42; /* Subtler separator */
-        padding-bottom: 15px;
-        margin-bottom: 25px;
+        font-family: 'Orbitron', 'Outfit', sans-serif;
+        color: #fff;
+        margin-top: 0.2rem;
+        margin-bottom: 0.8rem;
+        line-height: 1.05;
+        letter-spacing: 1px;
+        text-shadow: 0 6px 20px rgba(0,0,0,0.6);
     }
-    h1 { font-size: 2.5em; font-weight: 700; }
-    h2 { font-size: 2em; font-weight: 600; }
-    h3 { font-size: 1.7em; font-weight: 500; }
-
-    /* Styling for various input labels */
-    .stRadio > label,
-    .stTextInput > label,
-    .stNumberInput > label,
-    .stDateInput > label,
-    .stForm > label {
-        color: #e0e0e0;
-        font-weight: 500;
-        margin-bottom: 8px; /* Add some space below labels */
-    }
-    
-    /* Styling for buttons */
-    .stButton > button {
-        background: linear-gradient(135deg, #6a82fb, #fc5c7d); /* Gradient for buttons */
-        color: white !important;
-        border: none;
-        border-radius: 25px; /* More rounded, oval-like */
-        padding: 12px 30px;
-        font-weight: 600;
-        font-size: 1em;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-    }
-    .stButton > button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        opacity: 0.9;
-    }
-    .stButton.clear-button > button {
-        background: linear-gradient(135deg, #ff6b6b, #ee9b00); /* Different gradient for clear button */
-        color: white !important;
-    }
-    .stButton.clear-button > button:hover {
-        opacity: 0.9;
-    }
-
-
-    /* Styling for the sidebar */
-    .css-1d391kg { /* This is the main sidebar container */
-        background-color: #2a2a4a; /* Slightly lighter dark for sidebar */
-        border-right: 1px solid #3e3e5e;
-        padding-top: 2rem;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.4);
-        border-radius: 0 15px 15px 0; /* Rounded right side for a modern touch */
-    }
-    .css-1d391kg .stButton > button { /* Sidebar buttons */
-        background: linear-gradient(135deg, #a18cd1, #fbc2eb); /* Pastel gradient for sidebar buttons */
-        color: #1a1a2e !important; /* Dark text on light button */
-        border-color: transparent;
-        width: 90%; /* Adjust width for spacing */
-        margin: 5px auto; /* Center buttons with auto margin */
-        display: block; /* Ensures margin auto works */
-        border-radius: 20px; /* More rounded */
-        font-weight: 500;
-    }
-    .css-1d391kg .stButton > button:hover {
-        background: linear-gradient(135deg, #b09ee0, #fcd8f2); /* Slightly brighter hover */
-        transform: translateY(-1px);
-    }
-    /* Active sidebar button styling */
-    .css-1d391kg .stButton > button[aria-selected="true"] {
-        background: linear-gradient(135deg, #fc5c7d, #6a82fb); /* Stronger accent for active */
-        color: white !important;
-    }
-
-
-    /* Styling for chat messages */
-    .stChatMessage {
-        background: #2e2e42; /* Darker background for chat bubbles */
-        border-radius: 20px; /* Very rounded, oval-like */
-        padding: 18px 22px; /* More padding */
-        margin-bottom: 15px; /* More space between messages */
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-        border: none; /* Remove default border */
-        color: #e0e0e0;
-        font-size: 1.05em;
-    }
-    .stChatMessage.st-chat-message-user {
-        background: linear-gradient(135deg, #7c4dff, #448aff); /* Gradient for user messages */
-        color: white;
-        text-align: right; /* Align user messages to the right */
-        margin-left: auto; /* Push user message to the right */
-        border-radius: 20px 20px 5px 20px; /* Slightly different corner for tail */
-    }
-    .stChatMessage.st-chat-message-assistant {
-        background: linear-gradient(135deg, #1e3a8a, #0c4a6e); /* Gradient for assistant messages */
-        color: #e0e0e0;
-        text-align: left; /* Align assistant messages to the left */
-        margin-right: auto; /* Push assistant message to the left */
-        border-radius: 20px 20px 20px 5px; /* Slightly different corner for tail */
-    }
-
-
-    /* Styling for the main content block, including chat input and forms */
-    .st-emotion-cache-1c7v05w, .stForm {
-        background-color: #1a1a2e; /* Match app background */
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        border: 1px solid #2e2e42;
-        margin-bottom: 30px; /* Add space below forms/blocks */
-    }
-    
-    /* Text input fields */
-    .stTextInput > div > div > input, .stTextArea > div > div > textarea, .stNumberInput > div > div > input {
-        background-color: #2e2e42; /* Darker input fields */
-        color: #e0e0e0;
-        border: 1px solid #3e3e5e;
-        border-radius: 10px; /* Rounded corners */
-        padding: 12px 15px;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        font-size: 1.05em;
-    }
-    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus, .stNumberInput > div > div > input:focus {
-        border-color: #8edce6; /* Accent color on focus */
-        box-shadow: 0 0 0 0.15rem rgba(142, 220, 230, 0.4); /* Subtle glow */
-        outline: none; /* Remove default outline */
-    }
-    
-    /* Chat input container styling - for the main chat input at the bottom */
-    .st-emotion-cache-1g85z9l { /* This targets the overall chat input container */
-        background-color: #2e2e42; /* Match content blocks */
-        border-radius: 30px; /* Very rounded */
-        padding: 10px 15px;
-        border: 1px solid #3e3e5e;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 30px; /* Space above chat input */
-    }
-    .st-emotion-cache-1g85z9l input { /* This targets the actual text input within the chat input container */
-        background-color: transparent; /* Transparent background */
-        color: #e0e0e0;
-        border: none; /* Remove border */
-        padding: 10px 15px;
-        flex-grow: 1;
-        font-size: 1.1em;
-        outline: none; /* Remove outline */
-    }
-    .st-emotion-cache-1g85z9l button { /* Send button within chat input */
-        background: linear-gradient(45deg, #8edce6, #a18cd1); /* Soft gradient for send button */
-        color: #1a1a2e !important;
-        border-radius: 25px; /* Oval shape */
-        padding: 10px 20px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    .st-emotion-cache-1g85z9l button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 10px rgba(142, 220, 230, 0.3);
-    }
-    
-    /* Info and Error messages */
-    .stAlert {
-        border-radius: 10px;
-        padding: 15px 20px;
-        margin-bottom: 20px;
-        border: none; /* Remove default border */
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        font-size: 1em;
-    }
-    .stAlert.st-success {
-        background-color: #4CAF50; /* Green */
-        color: white;
-    }
-    .stAlert.st-error {
-        background-color: #f44336; /* Red */
-        color: white;
-    }
-    .stAlert.st-info {
-        background-color: #2196F3; /* Blue */
-        color: white;
-    }
-
-    /* Icon adjustments for better visibility */
-    .stChatMessage .st-emotion-cache-1wmy06w img {
-        border: 2px solid #8edce6; /* Accent border for assistant icon */
-        border-radius: 50%; /* Make icons circular */
-    }
-    .stChatMessage.st-chat-message-user .st-emotion-cache-1wmy06w img {
-        border: 2px solid #fc5c7d; /* Different accent for user icon */
-    }
-
-    /* Persona selection as segmented control */
-    .stRadio > div[role="radiogroup"] {
-        display: flex;
-        justify-content: flex-start;
-        margin-bottom: 25px;
-        gap: 15px; /* Space between radio options */
-    }
-    .stRadio [data-baseweb="radio"] {
-        margin-right: 0px; /* Remove default margin */
-    }
-    .stRadio [data-baseweb="radio"] label {
-        background: linear-gradient(135deg, #3e3e5e, #2e2e42); /* Subtle dark gradient */
-        border: 1px solid #5e5e7e;
-        border-radius: 20px; /* Very rounded */
-        padding: 10px 20px;
-        color: #c0c0c0;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .stRadio [data-baseweb="radio"][aria-checked="true"] label {
-        background: linear-gradient(135deg, #a18cd1, #fc5c7d); /* Vibrant gradient when selected */
-        border-color: #fc5c7d;
-        color: white; /* White text on vibrant background */
-        box-shadow: 0 4px 10px rgba(161, 140, 209, 0.4);
-    }
-    
-    /* Hide the default radio button dot for a cleaner segmented look */
-    .stRadio [data-baseweb="radio"] input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    /* Style for the main page header */
-    .main-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 30px;
-        padding-top: 15px;
-        border-bottom: none; /* Remove double border */
-    }
-
-    /* Custom progress bar container */
-    .progress-container {
-        width: 100%;
-        background-color: #2e2e42;
-        border-radius: 15px; /* Rounded progress bar */
-        height: 30px; /* Taller progress bar */
-        overflow: hidden;
-        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
-        margin-top: 10px;
-    }
-    /* Custom progress bar fill */
-    .progress-fill {
-        height: 100%;
-        background-image: linear-gradient(90deg, #8edce6, #6a82fb); /* Gradient fill */
-        border-radius: 15px;
-        transition: width 0.5s ease-in-out;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #1a1a2e; /* Dark text on light gradient */
-        font-weight: 600;
-        text-shadow: 1px 1px 2px rgba(255,255,255,0.2);
-        font-size: 0.95em;
-        white-space: nowrap; /* Prevent text wrapping */
-        padding: 0 10px; /* Padding for text inside bar */
-    }
-    .progress-fill span {
-        text-align: center;
-        width: 100%;
-    }
-
-    /* --- Specific Styling for Home Page Text --- */
-    .home-title-gradient {
-        font-size: 3.5em; /* Larger, more prominent */
-        font-weight: 700;
-        background: linear-gradient(90deg, #fc5c7d, #6a82fb); /* Gradient matching sidebar buttons */
+    h1 {
+        font-size: 2.8rem;
+        background: linear-gradient(90deg, #ff6b6b, #ffb86b, #6be4ff, #7c4dff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 15px; /* Adjust spacing */
-        text-shadow: 2px 2px 5px rgba(0,0,0,0.4); /* More pronounced shadow */
+        filter: drop-shadow(0 6px 24px rgba(124,77,255,0.12));
+    }
+    h2 { font-size: 2.1rem; }
+    h3 { font-size: 1.5rem; }
+
+    /* Home page title specific */
+    .home-title-gradient {
+        font-size: 3.2rem;
+        font-weight: 800;
+        line-height: 0.95;
+        margin-bottom: 4px;
     }
 
     .home-greeting-text {
-        font-size: 1.6em; /* Slightly larger for emphasis */
-        font-weight: 500; /* Medium weight */
-        color: #e0e0e0; /* Light text for readability */
-        margin-bottom: 40px; /* More space below greeting */
-        line-height: 1.4; /* Better line spacing */
+        font-size: 1.15rem;
+        color: #dbeafe;
+        margin-bottom: 20px;
+        opacity: 0.95;
     }
 
     .persona-selection-label {
-        color: #8edce6; /* Use a bright accent color for this label */
-        font-weight: 600; /* Bolder */
-        font-size: 1.15em; /* Slightly larger */
-        margin-bottom: 20px; /* Space above radio buttons */
+        color: #9be7ff;
+        font-weight: 700;
+        margin-bottom: 10px;
     }
 
+    /* Sidebar */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, rgba(20,25,40,0.95), rgba(12,18,30,0.95));
+        border-right: 1px solid rgba(120,120,170,0.06);
+        padding-top: 1.3rem;
+        box-shadow: 6px 0 30px rgba(10,10,20,0.45);
+        border-radius: 0 16px 16px 0;
+    }
+    section[data-testid="stSidebar"] .stButton > button {
+        width: 92%;
+        margin: 8px auto;
+        display: block;
+        padding: 10px 18px;
+        font-weight: 700;
+        border-radius: 14px;
+        text-transform: none;
+    }
+    /* Active sidebar emphasised look */
+    section[data-testid="stSidebar"] .stButton > button[aria-selected="true"] {
+        box-shadow: inset 0 0 18px rgba(124,77,255,0.14);
+        transform: translateY(-2px);
+    }
+
+    /* Buttons - global */
+    .stButton > button {
+        background: linear-gradient(135deg, #6a82fb, #fc5c7d);
+        color: #fff !important;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 24px;
+        font-weight: 700;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+        box-shadow: 0 6px 20px rgba(106,130,251,0.12);
+    }
+    .stButton > button:hover {
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 0 10px 36px rgba(106,130,251,0.14);
+        opacity: 0.98;
+    }
+    .stButton.clear-button > button {
+        background: linear-gradient(135deg, #ff6b6b, #ee9b00);
+        color: #111 !important;
+        box-shadow: 0 6px 20px rgba(255,140,60,0.12);
+    }
+
+    /* Form labels & inputs */
+    .stTextInput > label, .stNumberInput > label, .stDateInput > label, .stForm > label {
+        color: #cfeffd;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea,
+    .stNumberInput > div > div > input {
+        background: linear-gradient(180deg, #121422, #1e2232);
+        border: 1px solid rgba(100,100,140,0.12);
+        border-radius: 10px;
+        padding: 12px 14px;
+        color: #e6f3ff;
+        font-size: 1.03rem;
+        transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.08s ease;
+    }
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus,
+    .stNumberInput > div > div > input:focus {
+        outline: none;
+        border-color: rgba(124,77,255,0.85);
+        box-shadow: 0 6px 30px rgba(124,77,255,0.06);
+        transform: translateY(-1px);
+    }
+
+    /* Chat bubbles */
+    .stChatMessage {
+        background: linear-gradient(180deg, rgba(28,31,45,0.85), rgba(25,28,38,0.9));
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 8px 28px rgba(3,6,23,0.45);
+        border: 1px solid rgba(255,255,255,0.02);
+    }
+    .stChatMessage .st-emotion-cache-1wmy06w img {
+        border-radius: 50%;
+        border: 2px solid rgba(158, 216, 230, 0.18);
+    }
+    .stChatMessage.st-chat-message-user {
+        background: linear-gradient(135deg, rgba(124,77,255,0.95), rgba(68,138,255,0.95));
+        color: #0b1020;
+        text-align: right;
+        margin-left: 18%;
+        border-radius: 20px 20px 4px 20px;
+        box-shadow: 0 12px 36px rgba(88,56,173,0.16);
+    }
+    .stChatMessage.st-chat-message-assistant {
+        background: linear-gradient(135deg, rgba(14,62,148,0.96), rgba(12,74,110,0.95));
+        color: #f1fbff;
+        text-align: left;
+        margin-right: 18%;
+        border-radius: 20px 20px 20px 4px;
+        box-shadow: 0 12px 36px rgba(6,60,140,0.14);
+    }
+
+    /* Chat input area (attempt to be resilient to classnames) */
+    .st-emotion-cache-1g85z9l, .element-container .stTextInput {
+        background: linear-gradient(180deg, #151622, #18202e);
+        padding: 10px 14px;
+        border-radius: 28px;
+        border: 1px solid rgba(140,140,200,0.06);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .st-emotion-cache-1g85z9l input {
+        background: transparent;
+        border: none;
+        color: #eaf6ff;
+        font-size: 1.05rem;
+        outline: none;
+    }
+    .st-emotion-cache-1g85z9l button {
+        border-radius: 20px;
+        padding: 8px 14px;
+        font-weight: 700;
+        box-shadow: 0 6px 20px rgba(142,220,230,0.06);
+    }
+
+    /* Persona radio / segmented style - resilient selector */
+    .stRadio > div[role="radiogroup"] {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+    .stRadio [data-baseweb="radio"] label {
+        background: linear-gradient(180deg, #2a2a3f, #212133);
+        border-radius: 14px;
+        padding: 10px 18px;
+        color: #cbdff6;
+        font-weight: 700;
+        border: 1px solid rgba(120,120,160,0.06);
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .stRadio [data-baseweb="radio"][aria-checked="true"] label {
+        background: linear-gradient(135deg, rgba(161,140,209,0.95), rgba(252,92,125,0.95));
+        color: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(161,140,209,0.12);
+    }
+    .stRadio [data-baseweb="radio"] input[type="radio"] { opacity: 0; position: absolute; left: -9999px; }
+
+    /* Progress bar: keep your custom class usage consistent */
+    .progress-container {
+        width: 100%;
+        background-color: #16202b;
+        border-radius: 999px;
+        height: 32px;
+        overflow: hidden;
+        box-shadow: inset 0 3px 12px rgba(0,0,0,0.6);
+        margin-top: 8px;
+    }
+    .progress-fill {
+        height: 100%;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        color: #08101a;
+        background: linear-gradient(90deg, #9be7ff, #6a82fb);
+        transition: width 0.6s cubic-bezier(.2,.9,.3,1);
+    }
+
+    /* Alerts */
+    .stAlert {
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-weight: 700;
+        background: linear-gradient(180deg, rgba(26,26,40,0.7), rgba(20,20,35,0.7));
+        border: 1px solid rgba(120,120,180,0.05);
+    }
+    .stAlert.st-success { background: linear-gradient(90deg, rgba(72,187,120,0.95), rgba(58,204,136,0.95)); color: #071018; }
+    .stAlert.st-error { background: linear-gradient(90deg, rgba(235,87,87,0.95), rgba(240,128,128,0.95)); color: #111; }
+    .stAlert.st-info { background: linear-gradient(90deg, rgba(59,130,246,0.95), rgba(96,165,250,0.95)); color: #071018; }
+
+    /* Table styles */
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.03); text-align: left; }
+    th { text-transform: uppercase; font-size: 0.86rem; color: #06121a; background: linear-gradient(90deg, #a7f3d0, #bfdbfe); border-radius: 6px; }
+
+    /* Plotly dark tune ups */
+    .plotly-graph-div .main-svg {
+        filter: drop-shadow(0 8px 30px rgba(12,20,55,0.5));
+    }
+
+    /* Small devices responsiveness */
+    @media (max-width: 640px) {
+        h1 { font-size: 2rem; }
+        .home-title-gradient { font-size: 2.2rem; }
+        .stButton > button { width: 100%; }
+        .stChatMessage.st-chat-message-user, .stChatMessage.st-chat-message-assistant { margin-left: 6%; margin-right: 6%; }
+    }
+
+    /* Subtle animated glows for important callouts - can be applied via <span class="glow">word</span> */
+    .glow {
+        background: linear-gradient(90deg,#ffb86b,#6be4ff,#7c4dff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: hueShift 6s linear infinite;
+    }
+    @keyframes hueShift {
+        0% { filter: hue-rotate(0deg); }
+        50% { filter: hue-rotate(45deg); }
+        100% { filter: hue-rotate(0deg); }
+    }
+
+    /* Accessibility helpers - focus outlines */
+    button:focus, input:focus, textarea:focus, select:focus {
+        outline: 3px solid rgba(124,77,255,0.12);
+        outline-offset: 2px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -665,7 +627,7 @@ def show_graphs_page():
         )
         
         # Update trace for text color on slices for better contrast
-        fig.update_traces(textinfo='percent+label', marker=dict(line=dict(color='#1a1a2e', width=1)))
+        fig.update_traces(textinfo='percent+label', marker=dict(line=dict(color='#0b1020', width=1)))
         
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -691,7 +653,7 @@ if 'logged_in' not in st.session_state:
 
 if st.session_state.logged_in:
     with st.sidebar:
-        st.markdown("<h2 style='text-align:center; color:#e0e0e0; border-bottom: none;'>Penny</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center; color:#e6eef3; border-bottom: none;'>Penny</h2>", unsafe_allow_html=True)
         st.markdown("---")
         if st.button("Home", key="sidebar_home"):
             st.session_state.page = 'home'
