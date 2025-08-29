@@ -367,8 +367,20 @@ def init_session_state():
         st.session_state.name_set = False
 
 
-# --- New get_response_from_gemini function with JSON validation ---
-def get_response_from_gemini(prompt):
+# --- New get_response_from_gemini function with JSON validation and Persona ---
+def get_response_from_gemini(prompt, persona):
+    
+    # Conditionally set the prompt persona based on the user's selection
+    persona_prompt = ""
+    if persona == "Friendly":
+        persona_prompt = """
+        -   **Friendly**: A supportive, non-judgmental peer. Use casual language and emojis.
+        """
+    elif persona == "Professional":
+        persona_prompt = """
+        -   **Professional**: Formal, concise, and informative. Use clear and professional language without emojis.
+        """
+
     full_prompt = f"""
     ### **Directive: Generate ONLY a JSON Object** ###
     
@@ -382,7 +394,7 @@ def get_response_from_gemini(prompt):
     -   "predictiveText2": A second short, likely follow-up question.
 
     ### **Persona** ###
-    -   **Friendly**: A supportive, non-judgmental peer. Use casual language and emojis.
+    {persona_prompt}
     
     ### **Your Logic** ###
     -   **Initial Greeting**: If the user's input is a greeting (e.g., "hi", "hello"), your response should be a friendly greeting that asks for their monthly income to get started.
@@ -396,15 +408,7 @@ def get_response_from_gemini(prompt):
     ### **Example Input/Output** ###
     User Input: "Hi"
     Expected JSON Output:
-    ```json
-    {{
-      "response": "Hi there! 👋 I'm Penny, your budgeting peer. To get started, what's your monthly income?",
-      "quit": false,
-      "name": "user",
-      "predictiveText1": "What if I don't have a steady income?",
-      "predictiveText2": "What kind of expenses should I list?"
-    }}
-    ```
+    {{"response": "Hi there! 👋 I'm Penny, your budgeting peer. To get started, what's your monthly income?", "quit": false, "name": "user", "predictiveText1": "What if I don't have a steady income?", "predictiveText2": "What kind of expenses should I list?"}}
     
     User's current input: {prompt}
     """
@@ -428,32 +432,14 @@ def get_response_from_gemini(prompt):
     except json.JSONDecodeError as e:
         st.warning(f"Error parsing JSON. Raw response: {raw_text}")
         st.warning(f"Error details: {e}")
-        # This fallback is a good safety measure but the primary fix is to improve the main prompt
-        simple_prompt = f"""
-        User said: "{prompt}"
-        Your task is to respond as a chatbot named Penny in a single JSON object.
-        -   "response": a very short, polite greeting that asks for the user's monthly income.
-        -   "quit": false.
-        -   "name": the user's name if provided, otherwise "user".
-        -   "predictiveText1": a very short follow-up question.
-        -   "predictiveText2": a very short follow-up question.
-        
-        Example JSON for "Hi":
-        {{ "response": "Hi! What's your monthly income?", "quit": false, "name": "user", "predictiveText1": "What about my expenses?", "predictiveText2": "What's a budget?" }}
-        """
-        try:
-            simple_response = model.generate_content(simple_prompt)
-            json_response = json.loads(simple_response.text)
-            return json_response
-        except Exception as e:
-            st.error(f"Failed again: {e}")
-            return {
-                "response": "Oops! I ran into an issue. Please try again.",
-                "quit": False,
-                "name": st.session_state.user_name,
-                "predictiveText1": "",
-                "predictiveText2": ""
-            }
+        # Fallback for when the AI messes up
+        return {
+            "response": "Oops! I ran into an issue. Please try again.",
+            "quit": False,
+            "name": st.session_state.user_name,
+            "predictiveText1": "",
+            "predictiveText2": ""
+        }
     except Exception as e:
         st.error(f"Error getting response from Gemini: {e}")
         return {
@@ -463,6 +449,7 @@ def get_response_from_gemini(prompt):
             "predictiveText1": "",
             "predictiveText2": ""
         }
+
 
 # --- Page Functions ---
 def show_welcome_page():
@@ -570,7 +557,7 @@ def show_home_page():
         with st.chat_message("assistant"):
             with st.spinner('Penny is thinking...'):
                 # Call the new function that handles the AI response and JSON validation
-                ai_response_json = get_response_from_gemini(prompt)
+                ai_response_json = get_response_from_gemini(prompt, st.session_state.persona)
 
                 if 'name' in ai_response_json and ai_response_json['name'] != "user":
                     st.session_state.user_name = ai_response_json['name']
