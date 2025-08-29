@@ -108,13 +108,14 @@ st.markdown("""
         border-radius: 0 16px 16px 0;
     }
     section[data-testid="stSidebar"] .stButton > button {
-        width: 92%;
+        width: 95%; /* Increased width to prevent text overflow */
         margin: 8px auto;
         display: block;
-        padding: 10px 18px;
+        padding: 12px 20px; /* Adjusted padding to better fit text */
         font-weight: 700;
         border-radius: 14px;
         text-transform: none;
+        white-space: nowrap; /* Prevents text from wrapping */
     }
     /* Active sidebar emphasised look */
     section[data-testid="stSidebar"] .stButton > button[aria-selected="true"] {
