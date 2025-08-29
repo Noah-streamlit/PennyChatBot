@@ -362,6 +362,42 @@ def show_home_page():
         st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
         st.rerun()
 
+def show_budget_page():
+    st.title("📝 Budget Details")
+    st.markdown("Please provide your financial information below.")
+    st.markdown("---")
+
+    # Initialize budget data if it doesn't exist
+    if 'budget' not in st.session_state:
+        st.session_state.budget = {}
+
+    with st.form("budget_form"):
+        st.markdown("##### Income & Overall Budget")
+        income = st.text_input("Monthly Income:", value=str(st.session_state.budget.get('income', '')), placeholder="e.g., 1500 XCD", key='budget_income')
+        monthly_budget = st.text_input("Overall Monthly Budget:", value=str(st.session_state.budget.get('monthly_budget', '')), placeholder="e.g., 1000 XCD", key='budget_monthly_budget')
+
+        st.markdown("##### Expenses & Liabilities")
+        rent = st.text_input("Rent:", value=str(st.session_state.budget.get('rent', '')), placeholder="e.g., 500 XCD", key='budget_rent')
+        food = st.text_input("Food:", value=str(st.session_state.budget.get('food', '')), placeholder="e.g., 300 XCD", key='budget_food')
+        transport = st.text_input("Transport:", value=str(st.session_state.budget.get('transport', '')), placeholder="e.g., 100 XCD", key='budget_transport')
+        liabilities = st.text_input("Other Liabilities:", value=str(st.session_state.budget.get('liabilities', '')), placeholder="e.g., 50 XCD", key='budget_liabilities')
+        
+        submitted = st.form_submit_button("Save Budget Details")
+        
+        if submitted:
+            try:
+                st.session_state.budget = {
+                    'income': float(income or 0),
+                    'monthly_budget': float(monthly_budget or 0),
+                    'rent': float(rent or 0),
+                    'food': float(food or 0),
+                    'transport': float(transport or 0),
+                    'liabilities': float(liabilities or 0)
+                }
+                st.success("Budget details saved! Navigate to the 'Graphs' page to see your breakdown.")
+                st.rerun()
+            except ValueError:
+                st.error("Please ensure all financial inputs are valid numbers.")
 
 def show_financial_goals_page():
     st.title("🎯 Financial Goals")
@@ -420,7 +456,7 @@ def show_financial_goals_page():
             with st.form(key=f"savings_form_{i}", clear_on_submit=True):
                 col1, col2 = st.columns(2)
                 with col1:
-                    # Changed from number_input to text_input to remove - and + buttons
+                    # Changed to text_input to remove - and + buttons
                     savings_amount_str = st.text_input("Amount Saved:", value="", placeholder="e.g., 50.00", key=f"amount_str_{i}")
                 with col2:
                     savings_date = st.date_input("Date:", datetime.date.today(), key=f"date_{i}")
@@ -453,116 +489,36 @@ def show_financial_goals_page():
             st.progress(progress)
             st.markdown(f"**Progress:** {progress * 100:.1f}%")
 
-            # Display the improved combined graph
-            if goal['savings_history']:
-                st.markdown("#### Progress Over Time")
-                # Create a DataFrame for plotting
-                df_history = pd.DataFrame(goal['savings_history'])
-                df_history['cumulative_amount'] = df_history['amount'].cumsum()
-                df_history['date'] = pd.to_datetime(df_history['date'])
-                
-                # Create the combined bar and line chart
-                fig = make_subplots(specs=[[{"secondary_y": True}]])
-
-                # Add bar chart for individual contributions
-                fig.add_trace(
-                    go.Bar(x=df_history['date'], y=df_history['amount'], name='Individual Contribution',
-                           marker_color='#64FFDA'),
-                    secondary_y=False,
-                )
-
-                # Add line chart for cumulative progress
-                fig.add_trace(
-                    go.Scatter(x=df_history['date'], y=df_history['cumulative_amount'], name='Cumulative Savings',
-                               mode='lines+markers', marker_color='#FF7F9F'),
-                    secondary_y=True,
-                )
-
-                # Add horizontal line for the goal amount
-                fig.add_hline(y=goal_amount, line_dash="dash", line_color="#FF7F9F", annotation_text="Goal", annotation_position="bottom right")
-
-                # Update layout for better appearance
-                fig.update_layout(
-                    title_text=f"Savings for {goal['goal_name']}",
-                    xaxis_title="Date",
-                    legend=dict(x=0, y=1.1, orientation="h"),
-                    plot_bgcolor='#12243D',
-                    paper_bgcolor='#0A192F',
-                    font=dict(color='#F0F0F0')
-                )
-                fig.update_yaxes(title_text="Contribution Amount", secondary_y=False, gridcolor='#1A314A')
-                fig.update_yaxes(title_text="Cumulative Savings", secondary_y=True, gridcolor='#1A314A')
-
-                st.plotly_chart(fig)
-
             st.markdown("---")
     else:
         st.info("You haven't set any goals yet.")
 
 def show_graphs_page():
-    st.title("📈 Financial Dashboard")
-    st.markdown("Visualize and manage your budget in one place.")
+    st.title("📈 Financial Graphs")
+    st.markdown("Visualize your budget and financial progress.")
     st.markdown("---")
 
-    # Initialize budget data if it doesn't exist
-    if 'budget' not in st.session_state:
-        st.session_state.budget = {}
-
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("Update Your Budget Details")
-        with st.form("budget_form"):
-            st.markdown("##### Income & Overall Budget")
-            income = st.text_input("Monthly Income:", value=str(st.session_state.budget.get('income', '')), placeholder="e.g., 1500 XCD", key='graphs_income')
-            monthly_budget = st.text_input("Overall Monthly Budget:", value=str(st.session_state.budget.get('monthly_budget', '')), placeholder="e.g., 1000 XCD", key='graphs_budget')
-
-            st.markdown("##### Expenses & Liabilities")
-            rent = st.text_input("Rent:", value=str(st.session_state.budget.get('rent', '')), placeholder="e.g., 500 XCD", key='graphs_rent')
-            food = st.text_input("Food:", value=str(st.session_state.budget.get('food', '')), placeholder="e.g., 300 XCD", key='graphs_food')
-            transport = st.text_input("Transport:", value=str(st.session_state.budget.get('transport', '')), placeholder="e.g., 100 XCD", key='graphs_transport')
-            liabilities = st.text_input("Other Liabilities:", value=str(st.session_state.budget.get('liabilities', '')), placeholder="e.g., 50 XCD", key='graphs_liabilities')
-            
-            submitted = st.form_submit_button("Save & Update Graph")
-            
-            if submitted:
-                try:
-                    st.session_state.budget = {
-                        'income': float(income or 0),
-                        'monthly_budget': float(monthly_budget or 0),
-                        'rent': float(rent or 0),
-                        'food': float(food or 0),
-                        'transport': float(transport or 0),
-                        'liabilities': float(liabilities or 0)
-                    }
-                    st.success("Budget details saved and graph updated!")
-                    st.rerun()
-                except ValueError:
-                    st.error("Please ensure all financial inputs are valid numbers.")
-
-    with col2:
-        st.subheader("Your Budget Breakdown")
-        budget_data = st.session_state.get('budget', {})
-        if budget_data and budget_data.get('income', 0) > 0:
-            expenses = {
-                'Rent': budget_data.get('rent', 0),
-                'Food': budget_data.get('food', 0),
-                'Transport': budget_data.get('transport', 0),
-                'Liabilities': budget_data.get('liabilities', 0)
-            }
-            
-            total_expenses = sum(expenses.values())
-            income = budget_data.get('income', 0)
-            
-            if income > total_expenses:
-                expenses['Remaining Balance'] = income - total_expenses
-            
-            df = pd.DataFrame(list(expenses.items()), columns=['Category', 'Amount'])
-            
-            fig = px.pie(df, values='Amount', names='Category', title='Distribution of Monthly Finances')
-            st.plotly_chart(fig)
-        else:
-            st.info("Enter your budget details on the left to see your graph.")
+    budget_data = st.session_state.get('budget', {})
+    if budget_data and budget_data.get('income', 0) > 0:
+        expenses = {
+            'Rent': budget_data.get('rent', 0),
+            'Food': budget_data.get('food', 0),
+            'Transport': budget_data.get('transport', 0),
+            'Liabilities': budget_data.get('liabilities', 0)
+        }
+        
+        total_expenses = sum(expenses.values())
+        income = budget_data.get('income', 0)
+        
+        if income > total_expenses:
+            expenses['Remaining Balance'] = income - total_expenses
+        
+        df = pd.DataFrame(list(expenses.items()), columns=['Category', 'Amount'])
+        
+        fig = px.pie(df, values='Amount', names='Category', title='Distribution of Monthly Finances')
+        st.plotly_chart(fig)
+    else:
+        st.info("Please fill out the Budget page to see your graphs.")
 
 def show_log_out_page():
     st.title("Log Out")
@@ -587,6 +543,9 @@ if st.session_state.logged_in:
         if st.button("Home"):
             st.session_state.page = 'home'
             st.rerun()
+        if st.button("Budget"):
+            st.session_state.page = 'budget'
+            st.rerun()
         if st.button("Financial Goals"):
             st.session_state.page = 'goals'
             st.rerun()
@@ -604,6 +563,8 @@ elif st.session_state.page == 'signup':
     show_signup_page()
 elif st.session_state.logged_in and st.session_state.page == 'home':
     show_home_page()
+elif st.session_state.logged_in and st.session_state.page == 'budget':
+    show_budget_page()
 elif st.session_state.logged_in and st.session_state.page == 'goals':
     show_financial_goals_page()
 elif st.session_state.logged_in and st.session_state.page == 'graphs':
