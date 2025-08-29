@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import os
 from dotenv import load_dotenv
+import json
 from markdown_it import MarkdownIt
 import time
 import datetime
@@ -346,6 +347,117 @@ st.markdown("""
 # --- Initialize Markdown parser
 md = MarkdownIt()
 
+
+# --- State Management and Data Functions ---
+def init_session_state():
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = "Home"
+    if 'messages' not in st.session_state:
+        st.session_state.messages = []
+    if 'user_name' not in st.session_state:
+        st.session_state.user_name = "user"
+    if 'financial_data' not in st.session_state:
+        st.session_state.financial_data = {
+            'income': 0,
+            'expenses': {},
+            'goals': []
+        }
+    if 'persona' not in st.session_state:
+        st.session_state.persona = "Friendly and supportive peer"
+    if 'name_set' not in st.session_state:
+        st.session_state.name_set = False
+
+
+# --- New get_response_from_gemini function with JSON validation ---
+def get_response_from_gemini(prompt):
+    full_prompt = f"""
+    ### Core Directive ###
+    You are a chatbot named Penny. Your only task is to provide a response in the following JSON format. You will not generate any text, dialogue, or characters outside of this single JSON object.
+
+    ### Persona ###
+    - Friendly, calm, supportive peer.
+    - Tone: Encouraging, non-judgmental, relatable, casual with emojis.
+
+    ### Task ###
+    1.  **Initial State:** If the user has not provided any financial data, your entire "response" will be a brief greeting that politely asks for their monthly income.
+    2.  **Data Collection:** If a user's prompt is missing income, expenses, or goals, ask for the missing information directly.
+    3.  **Evaluation:** When all data is provided, evaluate the budget and provide a concise summary. Start the summary with one of the following codes:
+        -   λ (lambda): Your budget is mostly on track.
+        -   ε (epsilon): Your budget needs some adjustments.
+        -   γ (gamma): Your budget is risky.
+    4.  **Give Advice:** Provide specific, actionable advice.
+
+    ### Response Format ###
+    Generate only a single JSON object with these keys. Do not use Markdown inside the key values.
+
+    -   "response": Your reply to the user. Max 150 words.
+    -   "quit": true or false. True only if the user says "quit," "bye," or "exit."
+    -   "name": The user's name. Default to "user."
+    -   "predictiveText1": A short, likely follow-up question. Max 25 words.
+    -   "predictiveText2": A second short, likely follow-up question. Max 25 words.
+
+    ### Example ###
+    User Input: "Hi"
+    JSON Output:
+    ```json
+    {{
+      "response": "Hi there! 👋 I'm Penny, your budgeting peer. To get started, what's your monthly income?",
+      "quit": false,
+      "name": "Jaden",
+      "predictiveText1": "What if I don't have a steady income?",
+      "predictiveText2": "What kind of expenses do I need to list?"
+    }}
+    ```
+    Current chat history for context (keep responses brief):
+    {st.session_state.messages}
+    
+    User's current input: {prompt}
+    """
+    
+    try:
+        # First attempt with the full prompt
+        response = model.generate_content(full_prompt)
+        json_response = json.loads(response.text)
+        return json_response
+    except json.JSONDecodeError:
+        # If the first attempt fails to produce valid JSON, use a simpler, more direct prompt
+        st.warning("The AI did not follow the format. Retrying with a more direct prompt.")
+        simple_prompt = f"""
+        User said: "{prompt}"
+        You are a chatbot named Penny. Your only task is to provide a very brief response in a single JSON object.
+        -   "response": a very short, polite greeting that asks for the user's monthly income.
+        -   "quit": false.
+        -   "name": the user's name if provided, otherwise "user".
+        -   "predictiveText1": a very short follow-up question.
+        -   "predictiveText2": a very short follow-up question.
+        
+        Example JSON for "Hi":
+        {{ "response": "Hi! What's your monthly income?", "quit": false, "name": "user", "predictiveText1": "What about my expenses?", "predictiveText2": "What's a budget?" }}
+        """
+        try:
+            simple_response = model.generate_content(simple_prompt)
+            json_response = json.loads(simple_response.text)
+            return json_response
+        except Exception as e:
+            st.error(f"Failed again: {e}")
+            return {
+                "response": "Oops! I ran into an issue. Please try again.",
+                "quit": False,
+                "name": st.session_state.user_name,
+                "predictiveText1": "",
+                "predictiveText2": ""
+            }
+    except Exception as e:
+        st.error(f"Error getting response from Gemini: {e}")
+        return {
+            "response": "Oops! I ran into an issue. Please try again in a moment.",
+            "quit": False,
+            "name": st.session_state.user_name,
+            "predictiveText1": "",
+            "predictiveText2": ""
+        }
+
+
 # --- Page Functions ---
 def show_welcome_page():
     st.title("Penny's Budgeting Assistant")
@@ -433,6 +545,7 @@ def show_home_page():
     prompt = st.chat_input("Ask Penny a question...")
     
     if prompt:
+        # Add the user's message to the chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
         # Display the user's message immediately
@@ -442,35 +555,23 @@ def show_home_page():
         # Display a thinking message while waiting for the response
         with st.chat_message("assistant"):
             with st.spinner('Penny is thinking...'):
-                persona_prompt = ""
-                if st.session_state.persona == "Friendly":
-                    persona_prompt = "You are a friendly, calm, and supportive financial assistant for teens. Keep your language simple and encouraging. Address the user by their name."
-                elif st.session_state.persona == "Professional":
-                    persona_prompt = "You are a professional financial advisor for adults. Use technical but clear language, focusing on practical advice. Address the user by their name."
+                # Call the new function that handles the AI response and JSON validation
+                ai_response_json = get_response_from_gemini(prompt)
+
+                if 'name' in ai_response_json and ai_response_json['name'] != "user":
+                    st.session_state.user_name = ai_response_json['name']
+                    st.session_state.name_set = True
                 
-                budget_data = st.session_state.get('budget', {})
-                budget_info = f"""
-                Here is the user's current budget information:
-                - Monthly Income: {budget_data.get('income', 'N/A')}
-                - Monthly Budget: {budget_data.get('monthly_budget', 'N/A')}
-                - Rent: {budget_data.get('rent', 'N/A')}
-                - Food: {budget_data.get('food', 'N/A')}
-                - Transport: {budget_data.get('transport', 'N/A')}
-                - Other Liabilities: {budget_data.get('liabilities', 'N/A')}
-                - Extra Info: {budget_data.get('extra_info', 'None provided')}
-                
-                Analyze this information to provide a helpful response.
-                """
-                full_prompt = f"{persona_prompt}\n\nUser's Name: {user_name}\n\n{budget_info}\n\nUser's Question: {prompt}"
-                
-                response = genai.GenerativeModel(model_name="gemini-2.0-flash").generate_content(full_prompt)
-                assistant_response_raw = response.text
-                assistant_response_plain = md.render(assistant_response_raw)
-                
-                st.markdown(assistant_response_plain, unsafe_allow_html=True)
+                if ai_response_json.get("quit", False):
+                    st.session_state.messages.append({"role": "assistant", "content": "Goodbye! It was great helping you."})
+                    st.rerun()
+
+                ai_response_content = ai_response_json.get("response", "I'm sorry, I couldn't generate a response.")
+                st.markdown(ai_response_content)
         
-        st.session_state.messages.append({"role": "assistant", "content": assistant_response_plain})
+        st.session_state.messages.append({"role": "assistant", "content": ai_response_content})
         st.rerun()
+
 
 def show_budget_page():
     st.title("📝 Budget Details")
